@@ -6,15 +6,21 @@ class PlaygroundLevelOutcome {
   final bool timedOut;
 
   /// Level-specific extra data: `List<String>` interest ids from Pick Your
-  /// Favorites, `bool` from Memory Match's readyForMultiStep signal, etc.
+  /// Favorites, `bool` (readyForMultiStep) from Copy the Pattern, etc.
   final Object? payload;
 
-  const PlaygroundLevelOutcome(this.points, {this.timedOut = false, this.payload});
+  const PlaygroundLevelOutcome(
+    this.points, {
+    this.timedOut = false,
+    this.payload,
+  });
 }
 
 typedef PlaygroundLevelComplete = void Function(PlaygroundLevelOutcome outcome);
 
-/// Ids for the 10 playground levels (PROJECT_V4.md §6), in play order.
+/// Ids for the 9 playground levels, in play order (Memory Match was cut —
+/// Copy the Pattern already probes working memory and now supplies
+/// `readyForMultiStep`).
 class PlaygroundLevelId {
   static const findTheBall = 'find_the_ball';
   static const repeatAfterMe = 'repeat_after_me';
@@ -24,7 +30,6 @@ class PlaygroundLevelId {
   static const matchTheShape = 'match_the_shape';
   static const pickFavorites = 'pick_favorites';
   static const howDoTheyFeel = 'how_do_they_feel';
-  static const memoryMatch = 'memory_match';
   static const copyThePattern = 'copy_the_pattern';
 
   static const order = [
@@ -36,14 +41,13 @@ class PlaygroundLevelId {
     matchTheShape,
     pickFavorites,
     howDoTheyFeel,
-    memoryMatch,
     copyThePattern,
   ];
 }
 
 /// The five levels that map directly onto Unit 1's own skills (PROJECT_V4.md
 /// §7.1) — these, and only these, decide the starting lesson. The rest
-/// (repeat-after-me, shapes, interests, emotions, memory) are recorded as
+/// (repeat-after-me, shapes, interests, emotions) are recorded as
 /// supplementary signals and never move the start point.
 const corePlacementLevelIds = [
   PlaygroundLevelId.findTheBall,
@@ -57,7 +61,14 @@ const corePlacementLevelIds = [
 /// (`lib/features/curriculum/data/units/unit_1.dart`). Deliberately excludes
 /// `u1l7`/`u1l8` (Unit 1's counting-catchup and review lessons) — placement
 /// never auto-skips the lessons that exist to catch gaps (PROJECT_V4.md §7.2).
-const unit1PlaceableLessonIds = ['u1l1', 'u1l2', 'u1l3', 'u1l4', 'u1l5', 'u1l6'];
+const unit1PlaceableLessonIds = [
+  'u1l1',
+  'u1l2',
+  'u1l3',
+  'u1l4',
+  'u1l5',
+  'u1l6',
+];
 
 /// Core score (0–100) → starting lesson, per the bucket table in
 /// PROJECT_V4.md §7.2.
@@ -94,7 +105,8 @@ class PlacementResult {
   /// 0–10 from How Do They Feel.
   final int? emotionAwareness;
 
-  /// From Memory Match: whether the child matched at least 2 of 3 pairs.
+  /// From Copy the Pattern: whether the child repeated the 3-step pattern
+  /// (even on the retry).
   final bool? readyForMultiStep;
 
   const PlacementResult({
@@ -134,8 +146,7 @@ class PlacementResult {
         .map((id) => levelScores[id] ?? 0)
         .fold<int>(0, (sum, score) => sum + score);
     final maxCoreSum = corePlacementLevelIds.length * 10;
-    final coreScore =
-        ((coreSum * 100) / maxCoreSum).round().clamp(0, 100);
+    final coreScore = ((coreSum * 100) / maxCoreSum).round().clamp(0, 100);
 
     final startingLessonId = startingLessonIdForCoreScore(coreScore);
     final startingIndex = unit1PlaceableLessonIds.indexOf(startingLessonId);

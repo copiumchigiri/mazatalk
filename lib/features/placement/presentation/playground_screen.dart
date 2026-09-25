@@ -5,13 +5,17 @@ import '../../profile/application/child_controller.dart';
 import '../../profile/domain/child_profile.dart';
 import '../application/playground_session_controller.dart';
 import '../domain/placement_result.dart';
+import '../domain/playground_acts.dart';
+import 'act_intro.dart';
+import 'art/painters.dart';
+import 'art/play_art.dart';
+import 'placement_scaffold.dart';
 import 'levels/copy_the_pattern_level.dart';
 import 'levels/count_the_friends_level.dart';
 import 'levels/find_the_ball_level.dart';
 import 'levels/find_the_letter_level.dart';
 import 'levels/how_do_they_feel_level.dart';
 import 'levels/match_the_shape_level.dart';
-import 'levels/memory_match_level.dart';
 import 'levels/pick_favorites_level.dart';
 import 'levels/repeat_after_me_level.dart';
 import 'levels/tap_the_color_level.dart';
@@ -34,8 +38,18 @@ import 'levels/tap_the_color_level.dart';
 class PlaygroundScreen extends ConsumerStatefulWidget {
   final String? name;
   final int? age;
+  final int? parentExpressiveRating;
+  final int? parentPeerCommunicationRating;
+  final int? parentVocabularyRating;
 
-  const PlaygroundScreen({super.key, this.name, this.age});
+  const PlaygroundScreen({
+    super.key,
+    this.name,
+    this.age,
+    this.parentExpressiveRating,
+    this.parentPeerCommunicationRating,
+    this.parentVocabularyRating,
+  });
 
   @override
   ConsumerState<PlaygroundScreen> createState() => _PlaygroundScreenState();
@@ -44,6 +58,7 @@ class PlaygroundScreen extends ConsumerStatefulWidget {
 class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
   late final int _seed;
   bool _handledCompletion = false;
+  final Set<int> _introducedActs = {};
 
   @override
   void initState() {
@@ -59,29 +74,33 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
       if (!_handledCompletion) {
         _handledCompletion = true;
         final result = state.result!;
-        WidgetsBinding.instance
-            .addPostFrameCallback((_) => _finishPlayground(result));
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _finishPlayground(result),
+        );
       }
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _DotProgress(
-                current: state.currentIndex,
-                total: PlaygroundLevelId.order.length,
-              ),
-              const SizedBox(height: 24),
-              Expanded(child: _buildLevel(state.currentLevelId)),
-            ],
-          ),
-        ),
+    final act = actForLevel(state.currentLevelId);
+    final showingIntro = !_introducedActs.contains(act.index);
+    return PlacementScaffold(
+      name: widget.name,
+      age: widget.age,
+      progress: state.currentIndex / PlaygroundLevelId.order.length,
+      progressStops: playgroundActs.length,
+      showMaza: true,
+      background: PlayArt(
+        name: 'act${act.index + 1}_bg',
+        placeholder: ActScenePainter(act.index),
+        fit: BoxFit.cover,
       ),
+      body: showingIntro
+          ? ActIntro(
+              key: ValueKey('act_intro_${act.index}'),
+              act: act,
+              onGo: () => setState(() => _introducedActs.add(act.index)),
+            )
+          : _buildLevel(state.currentLevelId),
     );
   }
 
@@ -109,8 +128,6 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
         return PickFavoritesLevel(seed: _seed, onComplete: onComplete);
       case PlaygroundLevelId.howDoTheyFeel:
         return HowDoTheyFeelLevel(onComplete: onComplete);
-      case PlaygroundLevelId.memoryMatch:
-        return MemoryMatchLevel(seed: _seed, onComplete: onComplete);
       case PlaygroundLevelId.copyThePattern:
         return CopyThePatternLevel(seed: _seed, onComplete: onComplete);
     }
@@ -123,20 +140,25 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
     final age = widget.age;
 
     if (name != null && age != null) {
-      await controller.addChild(ChildProfile(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: name,
-        age: age,
-        interestIds: result.interestIds,
-        completedLessonIds: result.placedLessonIds,
-        placedLessonIds: result.placedLessonIds,
-        placementCompleted: true,
-        placementCoreScore: result.coreScore,
-        verbalComfort: result.verbalComfort,
-        shapeAwareness: result.shapeAwareness,
-        emotionAwareness: result.emotionAwareness,
-        readyForMultiStep: result.readyForMultiStep,
-      ));
+      await controller.addChild(
+        ChildProfile(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: name,
+          age: age,
+          interestIds: result.interestIds,
+          completedLessonIds: result.placedLessonIds,
+          placedLessonIds: result.placedLessonIds,
+          placementCompleted: true,
+          placementCoreScore: result.coreScore,
+          verbalComfort: result.verbalComfort,
+          shapeAwareness: result.shapeAwareness,
+          emotionAwareness: result.emotionAwareness,
+          readyForMultiStep: result.readyForMultiStep,
+          parentExpressiveRating: widget.parentExpressiveRating,
+          parentPeerCommunicationRating: widget.parentPeerCommunicationRating,
+          parentVocabularyRating: widget.parentVocabularyRating,
+        ),
+      );
     } else {
       final child = ref.read(childControllerProvider).selectedChild;
       if (child != null) {
@@ -145,33 +167,6 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
     }
 
     if (!mounted) return;
-    context.go('/home');
-  }
-}
-
-class _DotProgress extends StatelessWidget {
-  final int current;
-  final int total;
-
-  const _DotProgress({required this.current, required this.total});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < total; i++) ...[
-          if (i > 0) const SizedBox(width: 6),
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: i < current ? Colors.black : Colors.grey.shade300,
-            ),
-          ),
-        ],
-      ],
-    );
+    context.go('/assessment-summary');
   }
 }

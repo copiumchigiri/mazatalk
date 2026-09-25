@@ -25,11 +25,8 @@ class LogoPlaceholder extends StatelessWidget {
           ),
         ],
       ),
-      alignment: Alignment.center,
-      child: const Text(
-        "🐻",
-        style: TextStyle(fontSize: 46),
-      ),
+      clipBehavior: Clip.antiAlias,
+      child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
     );
   }
 }
@@ -77,19 +74,34 @@ class WireframeButton extends StatelessWidget {
                 shadowColor: AppColors.cardShadow,
               ),
               onPressed: onPressed,
-              child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
             )
           : OutlinedButton(
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.textPrimary,
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: AppColors.primaryLight, width: 1.5),
+                side: const BorderSide(
+                  color: AppColors.primaryLight,
+                  width: 1.5,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
               onPressed: onPressed,
-              child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
             ),
     );
   }
@@ -121,7 +133,7 @@ class AuthMethodScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final title = isSignUp ? "Sign up" : "Log in";
+    final title = isSignUp ? "Бүртгүүлэх" : "Нэвтрэх";
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -138,29 +150,45 @@ class AuthMethodScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 32),
             WireframeButton(
-              text: "${isSignUp ? "Sign up" : "Log in"} with Google",
-              onPressed: () => _completeLogin(context, ref,
-                  isSignUp: isSignUp, accountId: 'google-demo-user'),
+              text: isSignUp ? "Google-ээр бүртгүүлэх" : "Google-ээр нэвтрэх",
+              onPressed: () => _completeLogin(
+                context,
+                ref,
+                isSignUp: isSignUp,
+                accountId: 'google-demo-user',
+              ),
             ),
             const SizedBox(height: 12),
             WireframeButton(
-              text: "${isSignUp ? "Sign up" : "Log in"} with Facebook",
-              onPressed: () => _completeLogin(context, ref,
-                  isSignUp: isSignUp, accountId: 'facebook-demo-user'),
+              text: isSignUp
+                  ? "Facebook-ээр бүртгүүлэх"
+                  : "Facebook-ээр нэвтрэх",
+              onPressed: () => _completeLogin(
+                context,
+                ref,
+                isSignUp: isSignUp,
+                accountId: 'facebook-demo-user',
+              ),
             ),
             const SizedBox(height: 12),
             WireframeButton(
-              text: "${isSignUp ? "Sign up" : "Log in"} with Phone Number",
+              text: isSignUp
+                  ? "Утасны дугаараар бүртгүүлэх"
+                  : "Утасны дугаараар нэвтрэх",
               onPressed: () =>
                   context.push('/${isSignUp ? "signup" : "login"}/phone'),
             ),
             const SizedBox(height: 12),
             WireframeButton(
-              text: "${isSignUp ? "Sign up" : "Log in"} with Email",
+              text: isSignUp ? "И-мэйлээр бүртгүүлэх" : "И-мэйлээр нэвтрэх",
               onPressed: () =>
                   context.push('/${isSignUp ? "signup" : "login"}/email'),
             ),
@@ -170,9 +198,7 @@ class AuthMethodScreen extends ConsumerWidget {
                   ? (context.canPop() ? context.pop() : context.go('/login'))
                   : context.push('/signup'),
               child: Text(
-                isSignUp
-                    ? "Already have an account? Log In"
-                    : "Create New Account",
+                isSignUp ? "Бүртгэлтэй юу? Нэвтрэх" : "Шинэ бүртгэл үүсгэх",
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -224,28 +250,33 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
             const LogoPlaceholder(),
             const SizedBox(height: 12),
             Text(
-              isSignUp ? "Sign up with Email" : "Log in with Email",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary),
+              isSignUp ? "И-мэйлээр бүртгүүлэх" : "И-мэйлээр нэвтрэх",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: "Email"),
+              decoration: const InputDecoration(labelText: "И-мэйл"),
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: "Password"),
+              decoration: const InputDecoration(labelText: "Нууц үг"),
             ),
             if (isSignUp) ...[
               const SizedBox(height: 12),
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: "Confirm Password"),
+                decoration: const InputDecoration(
+                  labelText: "Нууц үгээ давтах",
+                ),
               ),
             ],
             if (_error != null)
@@ -259,7 +290,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
               ),
             const SizedBox(height: 24),
             WireframeButton(
-              text: isSignUp ? "Sign up" : "Next",
+              text: isSignUp ? "Бүртгүүлэх" : "Дараах",
               isPrimary: true,
               onPressed: _submitting
                   ? () {}
@@ -269,7 +300,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
               TextButton(
                 onPressed: () => context.push('/reset-password'),
                 child: const Text(
-                  "Forgot Password? Reset it.",
+                  "Нууц үгээ мартсан уу? Сэргээх.",
                   style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),
@@ -279,9 +310,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
                   ? (context.canPop() ? context.pop() : context.go('/login'))
                   : context.push('/signup'),
               child: Text(
-                isSignUp
-                    ? "Already have an account? Log In"
-                    : "Create New Account",
+                isSignUp ? "Бүртгэлтэй юу? Нэвтрэх" : "Шинэ бүртгэл үүсгэх",
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -298,7 +327,7 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     if (email.isEmpty || password.isEmpty) {
-      setState(() => _error = "Please fill in all fields.");
+      setState(() => _error = "Бүх талбарыг бөглөнө үү.");
       return;
     }
     setState(() {
@@ -323,11 +352,11 @@ class _EmailAuthScreenState extends ConsumerState<EmailAuthScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      setState(() => _error = "Please fill in all fields.");
+      setState(() => _error = "Бүх талбарыг бөглөнө үү.");
       return;
     }
     if (password != confirmPassword) {
-      setState(() => _error = "Passwords do not match.");
+      setState(() => _error = "Нууц үг таарахгүй байна.");
       return;
     }
     setState(() {
@@ -370,7 +399,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   void _sendCode() {
     final phone = _phoneController.text.trim();
     if (phone.replaceAll(RegExp(r'[^0-9]'), '').length < 6) {
-      setState(() => _error = "Please enter a valid phone number.");
+      setState(() => _error = "Утасны дугаараа зөв оруулна уу.");
       return;
     }
     setState(() => _error = null);
@@ -396,16 +425,19 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             const SizedBox(height: 12),
             Text(
               isSignUp
-                  ? "Sign up with Phone Number"
-                  : "Log in with Phone Number",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary),
+                  ? "Утасны дугаараар бүртгүүлэх"
+                  : "Утасны дугаараар нэвтрэх",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.textPrimary,
+              ),
             ),
             const Divider(height: 40),
             TextField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
-              decoration:
-                  const InputDecoration(labelText: "Phone Number"),
+              decoration: const InputDecoration(labelText: "Утасны дугаар"),
             ),
             if (_error != null)
               Padding(
@@ -418,7 +450,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
               ),
             const SizedBox(height: 24),
             WireframeButton(
-              text: "Send Code",
+              text: "Код илгээх",
               isPrimary: true,
               onPressed: _sendCode,
             ),
@@ -428,9 +460,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                   ? (context.canPop() ? context.pop() : context.go('/login'))
                   : context.push('/signup'),
               child: Text(
-                isSignUp
-                    ? "Already have an account? Log In"
-                    : "Create New Account",
+                isSignUp ? "Бүртгэлтэй юу? Нэвтрэх" : "Шинэ бүртгэл үүсгэх",
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -447,24 +477,28 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 class VerificationCodeScreen extends ConsumerWidget {
   final bool isSignUp;
   final String phone;
-  const VerificationCodeScreen({super.key, this.isSignUp = false, this.phone = ''});
+  const VerificationCodeScreen({
+    super.key,
+    this.isSignUp = false,
+    this.phone = '',
+  });
 
   void _showErrorDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Invalid OTP"),
+        title: const Text("Код буруу байна"),
         content: const Text(
-          "Invalid one-time password (OTP). Try again or generate a new OTP.",
+          "Нэг удаагийн код буруу байна. Дахин оролдох эсвэл шинэ код авна уу.",
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Try again"),
+            child: const Text("Дахин оролдох"),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("New OTP"),
+            child: const Text("Шинэ код"),
           ),
         ],
       ),
@@ -486,8 +520,12 @@ class VerificationCodeScreen extends ConsumerWidget {
             const LogoPlaceholder(),
             const SizedBox(height: 20),
             const Text(
-              "Code sent",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary),
+              "Код илгээгдлээ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 20),
             Row(
@@ -506,17 +544,20 @@ class VerificationCodeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             WireframeButton(
-              text: "Continue",
+              text: "Үргэлжлүүлэх",
               isPrimary: true,
               // Demo OTP: any code passes; the phone number is the account key.
-              onPressed: () => _completeLogin(context, ref,
-                  isSignUp: isSignUp,
-                  accountId: 'phone-${phone.replaceAll(RegExp(r'[^0-9]'), '')}'),
+              onPressed: () => _completeLogin(
+                context,
+                ref,
+                isSignUp: isSignUp,
+                accountId: 'phone-${phone.replaceAll(RegExp(r'[^0-9]'), '')}',
+              ),
             ),
             TextButton(
               onPressed: () => _showErrorDialog(context),
               child: const Text(
-                "Resend verification code",
+                "Баталгаажуулах кодыг дахин илгээх",
                 style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -533,7 +574,8 @@ class VerificationCodeScreen extends ConsumerWidget {
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
   @override
-  ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
@@ -555,11 +597,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   Future<void> _checkEmail() async {
     final email = _emailController.text.trim();
-    final exists =
-        await ref.read(authControllerProvider.notifier).accountExists(email);
+    final exists = await ref
+        .read(authControllerProvider.notifier)
+        .accountExists(email);
     if (!mounted) return;
     if (!exists) {
-      setState(() => _error = "No account found with this email.");
+      setState(() => _error = "Энэ и-мэйлээр бүртгэл олдсонгүй.");
       return;
     }
     setState(() {
@@ -571,23 +614,25 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   Future<void> _setNewPassword() async {
     final password = _passwordController.text;
     if (password.length < 6) {
-      setState(() => _error = "Password must be at least 6 characters.");
+      setState(() => _error = "Нууц үг хамгийн багадаа 6 тэмдэгттэй байна.");
       return;
     }
     if (password != _confirmController.text) {
-      setState(() => _error = "Passwords do not match.");
+      setState(() => _error = "Нууц үг таарахгүй байна.");
       return;
     }
-    final ok = await ref.read(authControllerProvider.notifier).resetPassword(
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .resetPassword(
           email: _emailController.text.trim(),
           newPassword: password,
         );
     if (!mounted) return;
     if (!ok) {
-      setState(() => _error = "No account found with this email.");
+      setState(() => _error = "Энэ и-мэйлээр бүртгэл олдсонгүй.");
       return;
     }
-    context.push('/success?title=Successfully Reset Password&type=password');
+    context.push('/success?title=Нууц үг амжилттай сэргээгдлээ&type=password');
   }
 
   @override
@@ -605,30 +650,34 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             const LogoPlaceholder(),
             const SizedBox(height: 20),
             const Text(
-              "Reset Password",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary),
+              "Нууц үг сэргээх",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 20),
             TextField(
               controller: _emailController,
               enabled: !_emailVerified,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: "Email"),
+              decoration: const InputDecoration(labelText: "И-мэйл"),
             ),
             if (_emailVerified) ...[
               const SizedBox(height: 12),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: "New Password"),
+                decoration: const InputDecoration(labelText: "Шинэ нууц үг"),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _confirmController,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: "Confirm New Password"),
+                decoration: const InputDecoration(
+                  labelText: "Шинэ нууц үгээ давтах",
+                ),
               ),
             ],
             if (_error != null)
@@ -642,7 +691,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               ),
             const SizedBox(height: 24),
             WireframeButton(
-              text: _emailVerified ? "Set New Password" : "Continue",
+              text: _emailVerified ? "Шинэ нууц үг тохируулах" : "Үргэлжлүүлэх",
               isPrimary: true,
               onPressed: () =>
                   _emailVerified ? _setNewPassword() : _checkEmail(),
@@ -681,17 +730,21 @@ class SuccessScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 40),
             WireframeButton(
-              text: "Log In",
+              text: "Нэвтрэх",
               isPrimary: true,
               onPressed: () => context.go('/login'),
             ),
             const SizedBox(height: 12),
             WireframeButton(
-              text: "Sign Up",
+              text: "Бүртгүүлэх",
               onPressed: () => context.push('/signup'),
             ),
           ],

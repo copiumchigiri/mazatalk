@@ -4,7 +4,7 @@ import '../../../../core/widgets/maza_speech_bubble.dart';
 import '../../domain/placement_result.dart';
 import 'tap_choice_game.dart';
 
-const _letters = ['A', 'B', 'C', 'D', 'E'];
+const _letters = ['А', 'Б', 'В', 'Г', 'Д'];
 
 /// Level 5 — Find the Letter (PROJECT_V4.md §6): recognition of Unit 1's
 /// first five letters, spoken by sound the same way `letterListen` prompts
@@ -29,7 +29,7 @@ class FindTheLetterLevel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        MazaSpeechBubble(text: 'Find the letter... $target!'),
+        MazaSpeechBubble(text: '"$target" үсгийг ол!'),
         const SizedBox(height: 24),
         Expanded(
           child: TapChoiceGame(

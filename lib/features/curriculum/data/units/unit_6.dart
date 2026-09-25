@@ -47,7 +47,8 @@ final unit6 = UnitTemplate(
           const ['🌱', '🌿', '🌳'],
           rng,
           skillId: 'eq',
-          spokenPrompt: 'How does the tree grow? First the seed, then the plant, then the tree.',
+          spokenPrompt:
+              'How does the tree grow? First the seed, then the plant, then the tree.',
         ),
         storyQuestion(
           'The ${topic.label} lost its ball. A friend helped find it.',
@@ -57,7 +58,11 @@ final unit6 = UnitTemplate(
           rng,
         ),
         emotionTap(0),
-        sentenceForPicture('The dog is happy.', '🐶', const ['🐶', '🌙', '🚌'], rng),
+        sentenceForPicture('The dog is happy.', '🐶', const [
+          '🐶',
+          '🌙',
+          '🚌',
+        ], rng),
         tapWordYouHear('see', const ['I', 'see', 'my', 'a'], rng),
       ],
     ),
@@ -65,8 +70,11 @@ final unit6 = UnitTemplate(
       id: 'u6l3',
       title: 'Day & night',
       buildActivities: (topic, rng) => [
-        trueFalseFact('The sun ☀️ comes up in the morning',
-            isTrue: true, skillId: 'eq'),
+        trueFalseFact(
+          'The sun ☀️ comes up in the morning',
+          isTrue: true,
+          skillId: 'eq',
+        ),
         matchPairs(
           'Match the time of day',
           const [('Morning', '🌅'), ('Night', '🌙'), ('Rain', '🌧️')],
@@ -80,12 +88,10 @@ final unit6 = UnitTemplate(
           skillId: 'eq',
           spokenPrompt: 'First morning, then day, then night',
         ),
-        scenarioChoice(
-          'It is night 🌙. What do we do?',
-          '😴 Sleep',
-          const ['⚽ Play outside', '🍳 Eat breakfast'],
-          rng,
-        ),
+        scenarioChoice('It is night 🌙. What do we do?', '😴 Sleep', const [
+          '⚽ Play outside',
+          '🍳 Eat breakfast',
+        ], rng),
         trueFalseFact('We sleep in the morning', isTrue: false, skillId: 'eq'),
         emotionTap(rng.nextInt(4)),
       ],
@@ -141,8 +147,11 @@ final unit6 = UnitTemplate(
           const ['🙅 Say no', '😤 Grab theirs'],
           rng,
         ),
-        trueFalseFact('Sharing makes friends happy',
-            isTrue: true, skillId: 'eq'),
+        trueFalseFact(
+          'Sharing makes friends happy',
+          isTrue: true,
+          skillId: 'eq',
+        ),
         scenarioChoice(
           'You bumped into someone. What do you say?',
           '🙏 Sorry!',
@@ -150,8 +159,11 @@ final unit6 = UnitTemplate(
           rng,
         ),
         emotionTap(1),
-        trueFalseFact('Hitting is a kind thing to do',
-            isTrue: false, skillId: 'eq'),
+        trueFalseFact(
+          'Hitting is a kind thing to do',
+          isTrue: false,
+          skillId: 'eq',
+        ),
       ],
     ),
     LessonTemplate(
@@ -179,7 +191,11 @@ final unit6 = UnitTemplate(
           const ['😢 Sad', '😨 Scared'],
           rng,
         ),
-        sentenceForPicture('The cat sleeps.', '🐱', const ['🐱', '🐶', '☀️'], rng),
+        sentenceForPicture('The cat sleeps.', '🐱', const [
+          '🐱',
+          '🐶',
+          '☀️',
+        ], rng),
         emotionTap(0),
         scenarioChoice(
           'The story friend smiled. Why?',
@@ -210,7 +226,11 @@ final unit6 = UnitTemplate(
         letterAfter('ABCDEFGHIJKLMNOPQRSTUVWXY'[rng.nextInt(25)], rng),
         countObjects(topic, 5 + rng.nextInt(5), rng, range: 10),
         mathNumbers(4 + rng.nextInt(5), 2 + rng.nextInt(3), rng, add: true),
-        sentenceForPicture('The dog runs.', '🐶', const ['🐶', '🐱', '🚌'], rng),
+        sentenceForPicture('The dog runs.', '🐶', const [
+          '🐶',
+          '🐱',
+          '🚌',
+        ], rng),
         emotionTap(rng.nextInt(4)),
         sequenceTap(
           'Make the sentence: "I see my cat"',

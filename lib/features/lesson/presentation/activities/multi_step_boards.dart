@@ -299,7 +299,9 @@ class _SequenceBoardState extends State<SequenceBoard> {
                               ? '${_lockedOrder[i]}'
                               : '',
                           style: const TextStyle(
-                              fontWeight: FontWeight.w900, fontSize: 14),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                       Expanded(

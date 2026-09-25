@@ -26,7 +26,9 @@ class LocalAuthRepository implements AuthRepository {
   String _normalize(String id) => id.trim().toLowerCase();
 
   String _nameFor(String accountId) {
-    final base = accountId.contains('@') ? accountId.split('@').first : accountId;
+    final base = accountId.contains('@')
+        ? accountId.split('@').first
+        : accountId;
     return base.isEmpty ? 'parent' : base;
   }
 
@@ -45,7 +47,9 @@ class LocalAuthRepository implements AuthRepository {
   }
 
   Future<void> _saveAccounts(
-      SharedPreferences prefs, Map<String, dynamic> accounts) {
+    SharedPreferences prefs,
+    Map<String, dynamic> accounts,
+  ) {
     return prefs.setString(_accountsKey, jsonEncode(accounts));
   }
 
@@ -63,7 +67,7 @@ class LocalAuthRepository implements AuthRepository {
     final id = _normalize(email);
     final account = accounts[id] as Map<String, dynamic>?;
     // Same message for unknown email and wrong password on purpose.
-    const failure = AuthResult.failure('Email or password is incorrect.');
+    const failure = AuthResult.failure('И-мэйл эсвэл нууц үг буруу байна.');
     if (account == null) return failure;
     final hash = account['passwordHash'] as String?;
     if (hash == null || hash != _hash(password, id)) return failure;
@@ -81,17 +85,19 @@ class LocalAuthRepository implements AuthRepository {
   }) async {
     final id = _normalize(email);
     if (!_emailPattern.hasMatch(id)) {
-      return const AuthResult.failure('Please enter a valid email address.');
+      return const AuthResult.failure('И-мэйл хаягаа зөв оруулна уу.');
     }
     if (password.length < 6) {
       return const AuthResult.failure(
-          'Password must be at least 6 characters.');
+        'Нууц үг хамгийн багадаа 6 тэмдэгттэй байна.',
+      );
     }
     final prefs = await SharedPreferences.getInstance();
     final accounts = await _loadAccounts(prefs);
     if (accounts.containsKey(id)) {
       return const AuthResult.failure(
-          'An account with this email already exists. Try logging in.');
+        'Энэ и-мэйлээр бүртгэл аль хэдийн үүссэн байна. Нэвтэрч үзнэ үү.',
+      );
     }
     final name = _nameFor(id);
     accounts[id] = {'passwordHash': _hash(password, id), 'parentName': name};
@@ -106,7 +112,7 @@ class LocalAuthRepository implements AuthRepository {
     String? parentName,
   }) async {
     final id = _normalize(accountId);
-    if (id.isEmpty) return const AuthResult.failure('Invalid account.');
+    if (id.isEmpty) return const AuthResult.failure('Буруу бүртгэл.');
     final prefs = await SharedPreferences.getInstance();
     final accounts = await _loadAccounts(prefs);
     final existing = accounts[id] as Map<String, dynamic>?;

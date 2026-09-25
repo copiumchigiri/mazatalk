@@ -24,51 +24,10 @@ class MascotPlaceholder extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CustomPaint(
-            size: const Size(140, 140),
-            painter: MascotRadarPainter(),
-          ),
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "🐻",
-                style: TextStyle(fontSize: 58),
-              ),
-              SizedBox(height: 2),
-              Text(
-                "МАЗААЛАЙ",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                  letterSpacing: 2,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      clipBehavior: Clip.antiAlias,
+      child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
     );
   }
-}
-
-class MascotRadarPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.primaryLight.withValues(alpha: 0.6)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 2.5, paint);
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 3.8, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
 class OnboardingButton extends StatelessWidget {
@@ -102,7 +61,10 @@ class OnboardingButton extends StatelessWidget {
               onPressed: onPressed,
               child: Text(
                 text,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             )
           : OutlinedButton(
@@ -117,7 +79,10 @@ class OnboardingButton extends StatelessWidget {
               onPressed: onPressed,
               child: Text(
                 text,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
     );
@@ -153,7 +118,10 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.background,
                   borderRadius: BorderRadius.circular(20),
@@ -170,13 +138,13 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const Spacer(),
               OnboardingButton(
-                text: "Нэвтрэх (Log In)",
+                text: "Нэвтрэх",
                 isPrimary: true,
                 onPressed: () => context.push('/login'),
               ),
               const SizedBox(height: 14),
               OnboardingButton(
-                text: "Бүртгүүлэх (Sign Up)",
+                text: "Бүртгүүлэх",
                 onPressed: () => context.push('/signup'),
               ),
               const SizedBox(height: 16),
@@ -235,29 +203,28 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             ),
             const SizedBox(height: 4),
             const Text(
-              "Child Profile Creation",
+              "Хүүхдийнхээ нэр, насыг оруулна уу.",
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 28),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: "Хүүхдийн нэр (Child Name)",
-              ),
+              decoration: const InputDecoration(labelText: "Хүүхдийн нэр"),
             ),
             const SizedBox(height: 18),
             TextField(
               controller: _ageController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "Нас (Age)",
-              ),
+              decoration: const InputDecoration(labelText: "Нас"),
             ),
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 14.0),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -271,7 +238,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               ),
             const SizedBox(height: 36),
             OnboardingButton(
-              text: "Дараах (Next)",
+              text: "Дараах",
               isPrimary: true,
               onPressed: _handleNext,
             ),
@@ -286,11 +253,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     final age = int.tryParse(_ageController.text.trim());
     if (name.isEmpty || age == null) {
       setState(() {
-        _error = "Нэр, насыг зөв бөглөнө үү. (Please enter a valid name and age)";
+        _error = "Нэр, насыг зөв бөглөнө үү.";
       });
       return;
     }
     setState(() => _error = null);
-    context.push('/child/handoff', extra: {'name': name, 'age': age});
+    context.push('/child/questionnaire', extra: {'name': name, 'age': age});
   }
 }

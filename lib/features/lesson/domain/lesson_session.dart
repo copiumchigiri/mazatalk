@@ -20,10 +20,10 @@ class LessonSession {
   int _combo = 0;
 
   LessonSession(this.lesson, {this.startCheckpoint = 0, this.xpBase = 10})
-      : _queue = [
-          for (var i = startCheckpoint; i < lesson.activities.length; i++) i
-        ],
-        _initialLength = lesson.activities.length - startCheckpoint;
+    : _queue = [
+        for (var i = startCheckpoint; i < lesson.activities.length; i++) i,
+      ],
+      _initialLength = lesson.activities.length - startCheckpoint;
 
   bool get isComplete => _pos >= _queue.length;
 
@@ -69,6 +69,7 @@ class LessonSession {
   Set<int> get missedIndices => Set.unmodifiable(_missed);
 
   /// 'lessonId:activityIndex' entries for the practice-mode mistake bank.
-  List<String> get mistakeFingerprints =>
-      [for (final i in _missed) '${lesson.id}:$i'];
+  List<String> get mistakeFingerprints => [
+    for (final i in _missed) '${lesson.id}:$i',
+  ];
 }

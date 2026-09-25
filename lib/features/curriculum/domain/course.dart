@@ -11,13 +11,13 @@ class PathNode {
   final int chestCoins;
 
   const PathNode.lesson(Lesson this.lesson)
-      : id = '',
-        type = PathNodeType.lesson,
-        chestCoins = 0;
+    : id = '',
+      type = PathNodeType.lesson,
+      chestCoins = 0;
 
   const PathNode.chest(this.id, {this.chestCoins = 15})
-      : type = PathNodeType.chest,
-        lesson = null;
+    : type = PathNodeType.chest,
+      lesson = null;
 
   String get nodeId => type == PathNodeType.lesson ? lesson!.id : id;
 }

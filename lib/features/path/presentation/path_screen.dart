@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/parent_gate.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../companion/domain/skin.dart';
+import '../../companion/presentation/skin_avatar.dart';
 import '../../curriculum/application/course_controller.dart';
 import '../../curriculum/domain/course.dart';
 import '../../profile/application/child_controller.dart';
@@ -78,8 +79,10 @@ class _PathScreenState extends ConsumerState<PathScreen> {
   void _autoScrollTo(int rowIndex) {
     if (_didAutoScroll || !_scrollController.hasClients) return;
     _didAutoScroll = true;
-    final target = (rowIndex * _rowHeight - 180)
-        .clamp(0.0, _scrollController.position.maxScrollExtent);
+    final target = (rowIndex * _rowHeight - 180).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
     _scrollController.jumpTo(target);
   }
 
@@ -100,12 +103,15 @@ class _PathScreenState extends ConsumerState<PathScreen> {
       _didAutoScroll = false;
     }
 
-    final currentRowIndex = rows.indexWhere((r) =>
-        r is _NodeRow &&
-        r.node.type == PathNodeType.lesson &&
-        r.node.lesson!.id == currentLesson?.id);
+    final currentRowIndex = rows.indexWhere(
+      (r) =>
+          r is _NodeRow &&
+          r.node.type == PathNodeType.lesson &&
+          r.node.lesson!.id == currentLesson?.id,
+    );
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _autoScrollTo(currentRowIndex < 0 ? 0 : currentRowIndex));
+      (_) => _autoScrollTo(currentRowIndex < 0 ? 0 : currentRowIndex),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -123,12 +129,13 @@ class _PathScreenState extends ConsumerState<PathScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
+              key: const Key('path_avatar'),
               onTap: () => context.push('/skins'),
               child: CircleAvatar(
                 backgroundColor: AppColors.background,
-                child: Text(
-                  SkinCatalog.byId(child.equippedSkinId).emoji,
-                  style: const TextStyle(fontSize: 20),
+                child: SkinAvatar(
+                  skin: SkinCatalog.byId(child.equippedSkinId),
+                  size: 40,
                 ),
               ),
             ),
@@ -144,9 +151,15 @@ class _PathScreenState extends ConsumerState<PathScreen> {
           final row = rows[index];
           return switch (row) {
             _UnitHeaderRow() => _UnitHeader(title: row.title),
-            _NodeRow() => _buildNode(context, row, child, course,
-                isCurrent: row.node.type == PathNodeType.lesson &&
-                    row.node.lesson!.id == currentLesson?.id),
+            _NodeRow() => _buildNode(
+              context,
+              row,
+              child,
+              course,
+              isCurrent:
+                  row.node.type == PathNodeType.lesson &&
+                  row.node.lesson!.id == currentLesson?.id,
+            ),
           };
         },
       ),
@@ -197,8 +210,9 @@ class _PathScreenState extends ConsumerState<PathScreen> {
           if (!isUnlocked) {
             ScaffoldMessenger.of(context)
               ..clearSnackBars()
-              ..showSnackBar(const SnackBar(
-                  content: Text('Complete the previous lesson!')));
+              ..showSnackBar(
+                const SnackBar(content: Text('Өмнөх хичээлээ эхлээд дуусга!')),
+              );
             return;
           }
           context.push('/lesson?lessonId=${lesson.id}');
@@ -219,7 +233,8 @@ class _PathScreenState extends ConsumerState<PathScreen> {
       messenger
         ..clearSnackBars()
         ..showSnackBar(
-            const SnackBar(content: Text('Reach the chest to open it!')));
+          const SnackBar(content: Text('Авдар руу хүрээд нээгээрэй!')),
+        );
       return;
     }
     final ok = await ref
@@ -229,7 +244,8 @@ class _PathScreenState extends ConsumerState<PathScreen> {
       messenger
         ..clearSnackBars()
         ..showSnackBar(
-            SnackBar(content: Text('🎁 Chest opened! +${node.chestCoins} 🪙')));
+          SnackBar(content: Text('🎁 Авдар нээгдлээ! +${node.chestCoins} 🪙')),
+        );
     }
   }
 
@@ -241,18 +257,23 @@ class _PathScreenState extends ConsumerState<PathScreen> {
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: Colors.grey.shade200,
-                child: Text(SkinCatalog.byId(child.equippedSkinId).emoji),
+                child: SkinAvatar(
+                  skin: SkinCatalog.byId(child.equippedSkinId),
+                  size: 40,
+                ),
               ),
-              title: Text(child.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('Age ${child.age}'),
+              title: Text(
+                child.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('${child.age} настай'),
             ),
             const Divider(),
             ListTile(
               leading: const Text('🔁', style: TextStyle(fontSize: 22)),
-              title: const Text('Practice'),
+              title: const Text('Давтлага'),
               subtitle: child.mistakeBank.isNotEmpty
-                  ? Text('${child.mistakeBank.length} to review')
+                  ? Text('${child.mistakeBank.length} давтах')
                   : null,
               onTap: () {
                 Navigator.pop(context);
@@ -260,8 +281,15 @@ class _PathScreenState extends ConsumerState<PathScreen> {
               },
             ),
             ListTile(
-              leading: const Text('🐻', style: TextStyle(fontSize: 22)),
-              title: const Text('Companion & skins'),
+              leading: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 28,
+                  height: 28,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              title: const Text('Хамтрагч ба хувцас'),
               onTap: () {
                 Navigator.pop(context);
                 context.push('/skins');
@@ -269,20 +297,22 @@ class _PathScreenState extends ConsumerState<PathScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.family_restroom, color: Colors.black),
-              title: const Text('Parent dashboard'),
+              title: const Text('Эцэг эхийн самбар'),
               onTap: () => _openParentGated('/parent-dashboard'),
             ),
             ListTile(
               leading: const Icon(Icons.settings, color: Colors.black),
-              title: const Text('Settings'),
+              title: const Text('Тохиргоо'),
               onTap: () => _openParentGated('/settings'),
             ),
             const Spacer(),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.swap_horiz, color: Colors.red),
-              title: const Text('Change child',
-                  style: TextStyle(color: Colors.red)),
+              title: const Text(
+                'Хүүхэд солих',
+                style: TextStyle(color: Colors.red),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 context.go('/select-child');
@@ -290,8 +320,7 @@ class _PathScreenState extends ConsumerState<PathScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title:
-                  const Text('Log out', style: TextStyle(color: Colors.red)),
+              title: const Text('Гарах', style: TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.pop(context);
                 _confirmLogout(context);
@@ -317,13 +346,12 @@ class _PathScreenState extends ConsumerState<PathScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Log out?'),
-        content:
-            const Text("You'll need to log in again to continue learning."),
+        title: const Text('Гарах уу?'),
+        content: const Text('Үргэлжлүүлэн суралцахын тулд дахин нэвтэрнэ үү.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: const Text('Болих'),
           ),
           TextButton(
             onPressed: () async {
@@ -331,7 +359,7 @@ class _PathScreenState extends ConsumerState<PathScreen> {
               await ref.read(authControllerProvider.notifier).logout();
               if (context.mounted) context.go('/');
             },
-            child: const Text('Log out', style: TextStyle(color: Colors.red)),
+            child: const Text('Гарах', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -354,7 +382,10 @@ class _StatChip extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-              fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
       ],
     );
@@ -413,11 +444,14 @@ class _LessonNode extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (isCurrent)
-            const Text('START',
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    letterSpacing: 1.5)),
+            const Text(
+              'ЭХЛЭХ',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                letterSpacing: 1.5,
+              ),
+            ),
           Container(
             width: size,
             height: size,
@@ -442,7 +476,7 @@ class _LessonNode extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            isPlaced ? '$title · placed' : title,
+            isPlaced ? '$title · давсан' : title,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
@@ -476,10 +510,12 @@ class _ChestNode extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(opened ? '✅' : '🎁',
-                style: TextStyle(fontSize: reached && !opened ? 40 : 34)),
             Text(
-              opened ? 'Opened' : 'Chest',
+              opened ? '✅' : '🎁',
+              style: TextStyle(fontSize: reached && !opened ? 40 : 34),
+            ),
+            Text(
+              opened ? 'Нээсэн' : 'Авдар',
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],

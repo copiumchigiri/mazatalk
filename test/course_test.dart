@@ -4,8 +4,10 @@ import 'package:mazatalk/features/curriculum/domain/activity.dart';
 import 'package:mazatalk/features/curriculum/domain/course.dart';
 
 void main() {
-  Course build({String childId = 'child-1', List<String> interests = const ['dinosaurs', 'space']}) =>
-      buildCourseForChild(childId: childId, interestIds: interests);
+  Course build({
+    String childId = 'child-1',
+    List<String> interests = const ['dinosaurs', 'space'],
+  }) => buildCourseForChild(childId: childId, interestIds: interests);
 
   group('course generation', () {
     test('generates the full course: 6 units × 8 lessons = 48', () {
@@ -63,51 +65,78 @@ void main() {
       ('c2', ['space', 'ocean']),
       ('c3', ['music', 'art', 'sports']),
       ('c4', <String>[]),
-      ('a-very-long-child-id-9999', ['fairyTales', 'trains', 'cars', 'animals']),
+      (
+        'a-very-long-child-id-9999',
+        ['fairyTales', 'trains', 'cars', 'animals'],
+      ),
     ];
 
     test('every activity is self-consistent and age-capped', () {
       for (final (childId, interests) in children) {
         final course = buildCourseForChild(
-            childId: childId, interestIds: interests);
+          childId: childId,
+          interestIds: interests,
+        );
         for (final unit in course.units) {
           for (final lesson in unit.lessons) {
-            expect(lesson.activities.length, inInclusiveRange(5, 10),
-                reason: '${lesson.id} activity count');
+            expect(
+              lesson.activities.length,
+              inInclusiveRange(5, 10),
+              reason: '${lesson.id} activity count',
+            );
             for (final activity in lesson.activities) {
               final where = '$childId ${lesson.id} "${activity.prompt}"';
               expect(activity.prompt, isNotEmpty, reason: where);
-              expect(activity.choices.length, inInclusiveRange(2, 4),
-                  reason: where);
+              expect(
+                activity.choices.length,
+                inInclusiveRange(2, 4),
+                reason: where,
+              );
               expect(activity.correctOrder, isNotEmpty, reason: where);
               for (final index in activity.correctOrder) {
-                expect(index, inInclusiveRange(0, activity.choices.length - 1),
-                    reason: where);
+                expect(
+                  index,
+                  inInclusiveRange(0, activity.choices.length - 1),
+                  reason: where,
+                );
               }
               if (activity.isSingleAnswer) {
                 expect(activity.correctOrder.length, 1, reason: where);
               }
               // Choices must be distinct or the child can tap "the right
               // answer" and be told it's wrong.
-              expect(activity.choices.toSet().length,
-                  activity.choices.length,
-                  reason: '$where duplicate choices');
+              expect(
+                activity.choices.toSet().length,
+                activity.choices.length,
+                reason: '$where duplicate choices',
+              );
               switch (activity.type) {
                 case ActivityType.matchPairs:
-                  expect(activity.choices.length, lessThanOrEqualTo(3),
-                      reason: '$where pairs cap');
-                  expect(activity.rightColumn.length,
-                      activity.choices.length,
-                      reason: where);
+                  expect(
+                    activity.choices.length,
+                    lessThanOrEqualTo(3),
+                    reason: '$where pairs cap',
+                  );
+                  expect(
+                    activity.rightColumn.length,
+                    activity.choices.length,
+                    reason: where,
+                  );
                 case ActivityType.sequence:
                   // 3-tile cap; 4 allowed only from unit 5 (sentences).
-                  final cap =
-                      (unit.id == 'unit5' || unit.id == 'unit6') ? 4 : 3;
-                  expect(activity.correctOrder.length, lessThanOrEqualTo(cap),
-                      reason: '$where sequence cap');
-                  expect(activity.correctOrder.toSet().length,
-                      activity.correctOrder.length,
-                      reason: '$where sequence order must be a permutation');
+                  final cap = (unit.id == 'unit5' || unit.id == 'unit6')
+                      ? 4
+                      : 3;
+                  expect(
+                    activity.correctOrder.length,
+                    lessThanOrEqualTo(cap),
+                    reason: '$where sequence cap',
+                  );
+                  expect(
+                    activity.correctOrder.toSet().length,
+                    activity.correctOrder.length,
+                    reason: '$where sequence order must be a permutation',
+                  );
                 default:
                   break;
               }
@@ -115,11 +144,13 @@ void main() {
               if (unit.id == 'unit1') {
                 expect(
                   activity.type,
-                  isNot(isIn([
-                    ActivityType.matchPairs,
-                    ActivityType.sequence,
-                    ActivityType.fillBlank,
-                  ])),
+                  isNot(
+                    isIn([
+                      ActivityType.matchPairs,
+                      ActivityType.sequence,
+                      ActivityType.fillBlank,
+                    ]),
+                  ),
                   reason: '$where multi-step type in unit 1',
                 );
               }
@@ -140,8 +171,11 @@ void main() {
       expect(course.isUnlocked(first, []), isTrue);
       expect(course.isUnlocked(second, []), isFalse);
       expect(course.isUnlocked(second, [first]), isTrue);
-      expect(course.isUnlocked(third, [second]), isFalse,
-          reason: 'skipping a lesson must not unlock later ones');
+      expect(
+        course.isUnlocked(third, [second]),
+        isFalse,
+        reason: 'skipping a lesson must not unlock later ones',
+      );
     });
 
     test('firstIncomplete points at the resume lesson', () {
@@ -156,8 +190,10 @@ void main() {
       final course = build();
       final nodes = course.pathNodes();
       final expectedChests = course.lessons.length ~/ Course.chestInterval;
-      expect(nodes.where((n) => n.type == PathNodeType.chest).length,
-          expectedChests);
+      expect(
+        nodes.where((n) => n.type == PathNodeType.chest).length,
+        expectedChests,
+      );
       // The 5th node (index 4) is the chest after lessons 1–4.
       expect(nodes[4].type, PathNodeType.chest);
       expect(nodes[4].nodeId, 'chest_4');

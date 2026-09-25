@@ -45,3 +45,46 @@ app.*.map.json
 /android/app/release
 .claude/settings.local.json
 .claude/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+coverage/
+
+# Android / Gradle
+.gradle/
+android/.gradle/
+android/local.properties
+*.jks
+*.keystore
+
+# iOS / macOS
+Pods/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+
+# Claude Code
+.claude/
+.claude/settings.local.json
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log

@@ -70,11 +70,7 @@ final unit3 = UnitTemplate(
         numberAfter(7, rng, range: 12),
         matchPairs(
           'Match the number to the group',
-          [
-            ('1', topic.emoji),
-            ('2', topic.emoji * 2),
-            ('3', topic.emoji * 3),
-          ],
+          [('1', topic.emoji), ('2', topic.emoji * 2), ('3', topic.emoji * 3)],
           rng,
           skillId: 'counting',
         ),
@@ -99,7 +95,11 @@ final unit3 = UnitTemplate(
         shapeTap(3), // star
         shapeNearTopic(topic, rng),
         patternNext(rng),
-        trueFalseFact('A square ⬜ has 4 sides', isTrue: true, skillId: 'shapes'),
+        trueFalseFact(
+          'A square ⬜ has 4 sides',
+          isTrue: true,
+          skillId: 'shapes',
+        ),
         patternNext(rng),
         shapeTap(rng.nextInt(shapeNames.length)),
       ],

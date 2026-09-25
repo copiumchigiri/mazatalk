@@ -1,20 +1,58 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/maza_speech_bubble.dart';
 import '../../../profile/domain/interest.dart';
-import '../../application/playground_session_controller.dart';
 import '../../domain/placement_result.dart';
-import '../playground_level_timeout_mixin.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../art/painters.dart';
+import '../art/play_art.dart';
+import '../art/play_feedback.dart';
+import '../play_tile.dart';
 
-/// Level 7 — Pick Your Favorites (PROJECT_V4.md §6): replaces the old
-/// `InterestSelectScreen` form. Tap 3 toybox tiles; there's no correct
-/// answer here, so this always scores full credit — it exists purely to
-/// capture `interestIds` the same way the retired form used to, just in the
-/// playground's voice. Tap order is preserved (interestIds[0] anchors
-/// Lesson 1's theme, per the curriculum's topic-cycling in
-/// `course_builder.dart`), and any unpicked slots at the extended timeout
-/// are backfilled at random so theming always has 3 interests to cycle
-/// through.
+/// Mongolian icon + label for each [Interest], local to this level. Kept
+/// separate from [Interest.emoji]/[Interest.label] on purpose — those feed
+/// English curriculum lesson sentences elsewhere (e.g.
+/// `activity_factories.dart`, `unit_6.dart`) that this level must not touch.
+const _icons = {
+  Interest.dinosaurs: Icons.egg_alt,
+  Interest.cars: Icons.directions_car,
+  Interest.trains: Icons.train,
+  Interest.space: Icons.rocket_launch,
+  Interest.ocean: Icons.waves,
+  Interest.animals: Icons.pets,
+  Interest.music: Icons.music_note,
+  Interest.art: Icons.palette,
+  Interest.fairyTales: Icons.auto_stories,
+  Interest.sports: Icons.sports_soccer,
+};
+
+Widget _interestArt(Interest interest, double size) => PlayArt(
+  name: 'interest_${interest.id}',
+  placeholder: IconArtPainter(_icons[interest]!),
+  width: size,
+  height: size,
+);
+
+const _labels = {
+  Interest.dinosaurs: 'Үлэг гүрвэл',
+  Interest.cars: 'Машин',
+  Interest.trains: 'Галт тэрэг',
+  Interest.space: 'Сансар',
+  Interest.ocean: 'Далай',
+  Interest.animals: 'Амьтад',
+  Interest.music: 'Хөгжим',
+  Interest.art: 'Урлаг',
+  Interest.fairyTales: 'Үлгэр',
+  Interest.sports: 'Спорт',
+};
+
+/// Act 3, level 1 — Pick Your Favorites (PROJECT_V4.md §6): Maza is packing
+/// his backpack for the trip. The child taps 3 things they like and each one
+/// drops into a backpack slot. There's no correct answer, so this always
+/// scores full credit — it exists to capture `interestIds` (tap order is
+/// preserved; interestIds[0] anchors Lesson 1's theme, per the curriculum's
+/// topic-cycling in `course_builder.dart`). There is no timeout.
+///
+/// Keys: `interest_<id>` (grid tiles), `backpack_slot_<0..2>`.
 class PickFavoritesLevel extends StatefulWidget {
   final int seed;
   final PlaygroundLevelComplete onComplete;
@@ -30,16 +68,9 @@ class PickFavoritesLevel extends StatefulWidget {
 }
 
 class _PickFavoritesLevelState extends State<PickFavoritesLevel>
-    with PlaygroundLevelTimeoutMixin {
+    with PlayFeedbackMixin {
   final List<Interest> _picked = [];
   bool _done = false;
-
-  @override
-  void initState() {
-    super.initState();
-    startLevelTimeout(
-        kPlaygroundExtendedLevelTimeout, () => _finish(timedOut: true));
-  }
 
   void _onTap(Interest interest) {
     if (_done) return;
@@ -51,79 +82,105 @@ class _PickFavoritesLevelState extends State<PickFavoritesLevel>
       }
     });
     if (_picked.length == 3) {
-      cancelLevelTimeout();
-      Future.delayed(const Duration(milliseconds: 500), () => _finish());
+      cheer();
+      Future.delayed(const Duration(milliseconds: 500), _finish);
     }
   }
 
-  void _finish({bool timedOut = false}) {
-    if (_done) return;
+  void _finish() {
+    if (_done || !mounted) return;
     _done = true;
-    cancelLevelTimeout();
-    final result = [..._picked];
-    if (result.length < 3) {
-      final remaining =
-          Interest.values.where((i) => !result.contains(i)).toList()
-            ..shuffle(Random(widget.seed ^ 'pick_favorites'.hashCode));
-      result.addAll(remaining.take(3 - result.length));
-    }
-    widget.onComplete(PlaygroundLevelOutcome(
-      10,
-      timedOut: timedOut,
-      payload: result.map((i) => i.id).toList(),
-    ));
+    widget.onComplete(
+      PlaygroundLevelOutcome(10, payload: _picked.map((i) => i.id).toList()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const MazaSpeechBubble(text: 'Tap 3 things you love!'),
-        const SizedBox(height: 16),
-        Expanded(
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              childAspectRatio: 0.9,
-            ),
-            itemCount: Interest.values.length,
-            itemBuilder: (context, index) {
-              final interest = Interest.values[index];
-              final isSelected = _picked.contains(interest);
-              return GestureDetector(
-                onTap: () => _onTap(interest),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.black : Colors.white,
-                    border: Border.all(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+    return withCheer(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const MazaSpeechBubble(
+            text: 'Мазагийн үүргэвчинд дуртай 3 зүйлээ хий!',
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 0.9,
+              ),
+              itemCount: Interest.values.length,
+              itemBuilder: (context, index) {
+                final interest = Interest.values[index];
+                return PlayTile(
+                  key: Key('interest_${interest.id}'),
+                  state: _picked.contains(interest)
+                      ? PlayTileState.selected
+                      : PlayTileState.normal,
+                  onTap: () => _onTap(interest),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(interest.emoji, style: const TextStyle(fontSize: 30)),
+                      _interestArt(interest, 36),
                       const SizedBox(height: 4),
                       Text(
-                        interest.label,
+                        _labels[interest]!,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 10,
+                        style: const TextStyle(
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : Colors.black,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const PlayArt(
+                name: 'backpack',
+                placeholder: BackpackPainter(),
+                width: 64,
+                height: 64,
+              ),
+              const SizedBox(width: 12),
+              for (var i = 0; i < 3; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                Expanded(
+                  child: AnimatedContainer(
+                    key: Key('backpack_slot_$i'),
+                    duration: const Duration(milliseconds: 200),
+                    height: 58,
+                    decoration: BoxDecoration(
+                      color: i < _picked.length
+                          ? AppColors.background
+                          : AppColors.surfaceSoft,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: i < _picked.length
+                            ? AppColors.primary
+                            : AppColors.borderSubtle,
+                        width: 2,
+                      ),
+                    ),
+                    child: i < _picked.length
+                        ? Center(child: _interestArt(_picked[i], 34))
+                        : null,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

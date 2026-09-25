@@ -109,11 +109,19 @@ final unit4 = UnitTemplate(
       coinReward: 30,
       buildActivities: (topic, rng) => [
         letterTap('PQRST'[rng.nextInt(5)], rng),
-        mathPictures(topic, 2 + rng.nextInt(3), 1 + rng.nextInt(2), rng,
-            add: true),
+        mathPictures(
+          topic,
+          2 + rng.nextInt(3),
+          1 + rng.nextInt(2),
+          rng,
+          add: true,
+        ),
         numberTap(11 + rng.nextInt(5), rng, range: 16),
-        tapWordYouHear(_sightWords[rng.nextInt(_sightWords.length)],
-            _sightWords, rng),
+        tapWordYouHear(
+          _sightWords[rng.nextInt(_sightWords.length)],
+          _sightWords,
+          rng,
+        ),
         mathNumbers(3 + rng.nextInt(4), 1 + rng.nextInt(3), rng, add: true),
         trueFalseFact('4 is more than 1', isTrue: true, skillId: 'math'),
         firstLetter('Train', '🚂', 'T', rng),

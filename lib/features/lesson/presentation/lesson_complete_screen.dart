@@ -34,27 +34,34 @@ class LessonCompleteScreen extends StatelessWidget {
               const Text('🎉', style: TextStyle(fontSize: 64)),
               const SizedBox(height: 16),
               Text(
-                '$lessonTitle complete!',
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                '$lessonTitle дууслаа!',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
                 '⚡ +$xpEarned XP${coinsEarned > 0 ? '    🪙 +$coinsEarned' : ''}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Accuracy: $accuracyCorrect/$accuracyTotal',
+                'Оновчтой байдал: $accuracyCorrect/$accuracyTotal',
                 style: const TextStyle(fontSize: 15, color: Colors.grey),
               ),
               if (streak > 0) ...[
                 const SizedBox(height: 8),
                 Text(
-                  '🔥 Streak: day $streak',
+                  '🔥 Тасралтгүй: $streak өдөр',
                   style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold),
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
               const SizedBox(height: 32),
@@ -67,9 +74,13 @@ class LessonCompleteScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: onContinue,
-                  child: const Text('CONTINUE',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                  child: const Text(
+                    'ҮРГЭЛЖЛҮҮЛЭХ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                 ),
               ),
             ],

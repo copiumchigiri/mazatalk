@@ -49,14 +49,20 @@ class AuthController extends Notifier<AuthState> {
   }
 
   /// Returns null on success, otherwise a user-facing error message.
-  Future<String?> login({required String email, required String password}) async {
+  Future<String?> login({
+    required String email,
+    required String password,
+  }) async {
     final result = await _repository.login(email: email, password: password);
     _apply(result);
     return result.error;
   }
 
   /// Returns null on success, otherwise a user-facing error message.
-  Future<String?> signUp({required String email, required String password}) async {
+  Future<String?> signUp({
+    required String email,
+    required String password,
+  }) async {
     final result = await _repository.signUp(email: email, password: password);
     _apply(result);
     return result.error;
@@ -89,5 +95,6 @@ class AuthController extends Notifier<AuthState> {
   }
 }
 
-final authControllerProvider =
-    NotifierProvider<AuthController, AuthState>(AuthController.new);
+final authControllerProvider = NotifierProvider<AuthController, AuthState>(
+  AuthController.new,
+);

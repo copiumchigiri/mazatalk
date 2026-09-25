@@ -13,8 +13,9 @@ class SettingsController extends Notifier<SettingsState> {
 
   @override
   SettingsState build() {
-    final accountId =
-        ref.watch(authControllerProvider.select((s) => s.accountId));
+    final accountId = ref.watch(
+      authControllerProvider.select((s) => s.accountId),
+    );
     _accountId = accountId;
     _load(accountId);
     return const SettingsState();

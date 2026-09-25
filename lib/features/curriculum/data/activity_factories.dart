@@ -153,8 +153,7 @@ Activity colorOfTopic(Interest topic, Random rng) {
   return Activity(
     type: ActivityType.choicePicture,
     skillId: 'colors',
-    prompt:
-        'This ${topic.label} is ${colorNames[colorIndex]}. Tap that color.',
+    prompt: 'This ${topic.label} is ${colorNames[colorIndex]}. Tap that color.',
     choices: colorSwatches,
     correctOrder: [colorIndex],
   );
@@ -176,8 +175,7 @@ Activity shapeNearTopic(Interest topic, Random rng) {
   return Activity(
     type: ActivityType.choicePicture,
     skillId: 'shapes',
-    prompt:
-        'Tap the ${shapeNames[shapeIndex]} hiding near the ${topic.label}',
+    prompt: 'Tap the ${shapeNames[shapeIndex]} hiding near the ${topic.label}',
     choices: shapeEmoji,
     correctOrder: [shapeIndex],
   );
@@ -224,8 +222,11 @@ Activity animalSound(
   List<String> distractorEmoji,
   Random rng,
 ) {
-  final (choices, correct) =
-      shuffleWithAnswer(animalEmoji, distractorEmoji, rng);
+  final (choices, correct) = shuffleWithAnswer(
+    animalEmoji,
+    distractorEmoji,
+    rng,
+  );
   return Activity(
     type: ActivityType.choicePicture,
     skillId: 'vocabulary',
@@ -258,7 +259,11 @@ Activity biggerSmaller(Random rng, {required bool bigger}) {
   );
 }
 
-Activity trueFalseFact(String statement, {required bool isTrue, String skillId = 'vocabulary'}) {
+Activity trueFalseFact(
+  String statement, {
+  required bool isTrue,
+  String skillId = 'vocabulary',
+}) {
   return Activity(
     type: ActivityType.trueFalse,
     skillId: skillId,
@@ -291,12 +296,7 @@ Activity matchPairs(
 }
 
 /// `c _ t` with letter tiles; per-tap retry, single correct letter.
-Activity fillBlankWord(
-  String word,
-  String emoji,
-  int gapIndex,
-  Random rng,
-) {
+Activity fillBlankWord(String word, String emoji, int gapIndex, Random rng) {
   final letter = word[gapIndex].toUpperCase();
   final gapped = word
       .split('')
@@ -353,11 +353,8 @@ Activity mathPictures(
   return Activity(
     type: ActivityType.countAndChoose,
     skillId: 'math',
-    prompt:
-        '${topic.emoji * a}  $symbol  ${topic.emoji * b}  =  ?',
-    spokenPrompt: add
-        ? 'What is $a plus $b?'
-        : 'What is $a take away $b?',
+    prompt: '${topic.emoji * a}  $symbol  ${topic.emoji * b}  =  ?',
+    spokenPrompt: add ? 'What is $a plus $b?' : 'What is $a take away $b?',
     choices: numbers.map((n) => '$n').toList(),
     correctOrder: [numbers.indexOf(result)],
   );
@@ -372,19 +369,14 @@ Activity mathNumbers(int a, int b, Random rng, {required bool add}) {
     type: ActivityType.choiceText,
     skillId: 'math',
     prompt: '$a ${add ? '+' : '−'} $b = ?',
-    spokenPrompt:
-        add ? 'What is $a plus $b?' : 'What is $a take away $b?',
+    spokenPrompt: add ? 'What is $a plus $b?' : 'What is $a take away $b?',
     choices: choices,
     correctOrder: [correct],
   );
 }
 
 /// Sight/heard word: spoken prompt, tap the right word.
-Activity tapWordYouHear(
-  String word,
-  List<String> distractorWords,
-  Random rng,
-) {
+Activity tapWordYouHear(String word, List<String> distractorWords, Random rng) {
   final (choices, correct) = shuffleWithAnswer(word, distractorWords, rng);
   return Activity(
     type: ActivityType.listenAndChoose,
@@ -451,8 +443,10 @@ Activity scenarioChoice(
   List<String> distractors,
   Random rng,
 ) {
-  final (choices, correct) =
-      shuffleWithAnswer(correctAnswer, [correctAnswer, ...distractors], rng);
+  final (choices, correct) = shuffleWithAnswer(correctAnswer, [
+    correctAnswer,
+    ...distractors,
+  ], rng);
   return Activity(
     type: ActivityType.choiceText,
     skillId: 'eq',
@@ -470,8 +464,10 @@ Activity storyQuestion(
   List<String> distractors,
   Random rng,
 ) {
-  final (choices, correct) =
-      shuffleWithAnswer(answer, [answer, ...distractors], rng);
+  final (choices, correct) = shuffleWithAnswer(answer, [
+    answer,
+    ...distractors,
+  ], rng);
   return Activity(
     type: ActivityType.choiceText,
     skillId: 'reading',
@@ -483,8 +479,12 @@ Activity storyQuestion(
 }
 
 Activity greetingWave(Random rng) {
-  final (choices, correct) =
-      shuffleWithAnswer('👋', const ['👋', '🍎', '🚗', '🌧️'], rng);
+  final (choices, correct) = shuffleWithAnswer('👋', const [
+    '👋',
+    '🍎',
+    '🚗',
+    '🌧️',
+  ], rng);
   return Activity(
     type: ActivityType.choicePicture,
     skillId: 'eq',

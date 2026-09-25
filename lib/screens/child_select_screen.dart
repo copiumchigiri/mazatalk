@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/companion/domain/skin.dart';
+import '../features/companion/presentation/skin_avatar.dart';
 import '../features/profile/application/child_controller.dart';
 import 'onboarding_screens.dart' show MascotPlaceholder, OnboardingButton;
 
@@ -27,8 +28,15 @@ class ChildSelectScreen extends ConsumerWidget {
         actions: [
           TextButton.icon(
             onPressed: () => _confirmLogout(context, ref),
-            icon: const Icon(Icons.logout, color: AppColors.textSecondary, size: 18),
-            label: const Text("Log out", style: TextStyle(color: AppColors.textSecondary)),
+            icon: const Icon(
+              Icons.logout,
+              color: AppColors.textSecondary,
+              size: 18,
+            ),
+            label: const Text(
+              "Гарах",
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
         ],
       ),
@@ -38,42 +46,43 @@ class ChildSelectScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Align(alignment: Alignment.center, child: MascotPlaceholder()),
+              const Align(
+                alignment: Alignment.center,
+                child: MascotPlaceholder(),
+              ),
               const SizedBox(height: 24),
               const Text(
                 "Хүүхдээ сонгоно уу",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const Text(
-                "Choose your child",
-                style: TextStyle(color: Colors.grey, fontSize: 13),
               ),
               const SizedBox(height: 24),
               Expanded(
                 child: children.isEmpty
                     ? const Center(
                         child: Text(
-                          "No children added yet.",
+                          "Хүүхэд нэмээгүй байна.",
                           style: TextStyle(color: Colors.grey),
                         ),
                       )
                     : ListView.separated(
                         itemCount: children.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final child = children[index];
                           return _ChildTile(
                             name: child.name,
                             age: child.age,
-                            avatarEmoji:
-                                SkinCatalog.byId(child.equippedSkinId).emoji,
+                            avatar: SkinCatalog.byId(child.equippedSkinId),
                             streak: child.dailyStreak,
                             xp: child.xp,
                             onTap: () async {
                               await ref
                                   .read(childControllerProvider.notifier)
                                   .selectChild(child.id);
-                              if (context.mounted) context.go('/home');
+                              if (context.mounted) {
+                                context.go('/assessment-summary');
+                              }
                             },
                           );
                         },
@@ -81,7 +90,7 @@ class ChildSelectScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               OnboardingButton(
-                text: "+ Хүүхэд нэмэх (Add Child)",
+                text: "+ Хүүхэд нэмэх",
                 isPrimary: true,
                 onPressed: () => context.push('/child/new'),
               ),
@@ -96,12 +105,12 @@ class ChildSelectScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text("Log out?"),
-        content: const Text("You'll need to log in or sign up again to continue."),
+        title: const Text("Гарах уу?"),
+        content: const Text("Үргэлжлүүлэхийн тулд дахин нэвтэрнэ үү."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Cancel"),
+            child: const Text("Болих"),
           ),
           TextButton(
             onPressed: () async {
@@ -110,7 +119,7 @@ class ChildSelectScreen extends ConsumerWidget {
               await ref.read(childControllerProvider.notifier).clearSelection();
               if (context.mounted) context.go('/');
             },
-            child: const Text("Log out", style: TextStyle(color: Colors.red)),
+            child: const Text("Гарах", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -121,7 +130,7 @@ class ChildSelectScreen extends ConsumerWidget {
 class _ChildTile extends StatelessWidget {
   final String name;
   final int age;
-  final String avatarEmoji;
+  final Skin avatar;
   final int streak;
   final int xp;
   final VoidCallback onTap;
@@ -129,7 +138,7 @@ class _ChildTile extends StatelessWidget {
   const _ChildTile({
     required this.name,
     required this.age,
-    required this.avatarEmoji,
+    required this.avatar,
     required this.streak,
     required this.xp,
     required this.onTap,
@@ -159,25 +168,35 @@ class _ChildTile extends StatelessWidget {
             CircleAvatar(
               radius: 26,
               backgroundColor: AppColors.background,
-              child: Text(avatarEmoji, style: const TextStyle(fontSize: 26)),
+              child: SkinAvatar(skin: avatar, size: 52),
             ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: AppColors.textPrimary)),
-                Text("Age $age",
-                    style: const TextStyle(
-                        color: AppColors.textSecondary, fontSize: 13)),
-                Text("🔥 $streak  ·  ⚡ $xp",
-                    style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary)),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  "$age настай",
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  "🔥 $streak  ·  ⚡ $xp",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ],
             ),
             const Spacer(),

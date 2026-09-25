@@ -9,6 +9,8 @@ import '../../curriculum/domain/activity.dart';
 import '../../curriculum/domain/course.dart';
 import '../../curriculum/domain/lesson.dart';
 import '../../profile/application/child_controller.dart';
+import '../../letters/domain/letter_glyph.dart';
+import '../../letters/presentation/letter_intro_flow.dart';
 import '../domain/lesson_session.dart';
 import 'activities/multi_step_boards.dart';
 import 'lesson_complete_screen.dart';
@@ -38,6 +40,11 @@ const _wrongAdvanceDelay = Duration(milliseconds: 2500);
 class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
   LessonSession? _session;
   bool _loading = true;
+
+  /// A see / say / trace intro to play before the first question (only when
+  /// the lesson has one and we're not resuming mid-lesson).
+  LetterGlyph? _intro;
+  bool _introDone = false;
 
   /// Whether checkpoints/currentLessonId may be persisted — true only when
   /// playing the child's actual current lesson (not a replay of a finished
@@ -86,12 +93,18 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
         .forChild(childId: child.id, interestIds: child.interestIds);
 
     if (widget.practice) {
-      _loadPractice(child.id, child.interestIds, child.mistakeBank,
-          child.completedLessonIds, course);
+      _loadPractice(
+        child.id,
+        child.interestIds,
+        child.mistakeBank,
+        child.completedLessonIds,
+        course,
+      );
       return;
     }
 
-    final targetId = widget.lessonId ??
+    final targetId =
+        widget.lessonId ??
         child.currentLessonId ??
         course.firstIncomplete(child.completedLessonIds)?.id ??
         course.lessons.first.id;
@@ -106,9 +119,10 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     setState(() {
       _session = LessonSession(lesson, startCheckpoint: startCheckpoint);
       _trackProgress = !isReplay;
+      _intro = startCheckpoint == 0 ? LetterCatalog.forLesson(lesson.id) : null;
       _loading = false;
     });
-    _speakPrompt();
+    if (_intro == null) _speakPrompt();
   }
 
   void _loadPractice(
@@ -126,7 +140,9 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
       if (parts.length != 2) continue;
       final lesson = course.lessonById(parts[0]);
       final index = int.tryParse(parts[1]);
-      if (lesson == null || index == null || index >= lesson.activities.length) {
+      if (lesson == null ||
+          index == null ||
+          index >= lesson.activities.length) {
         continue;
       }
       activities.add(lesson.activities[index]);
@@ -152,7 +168,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
 
     final practiceLesson = Lesson(
       id: 'practice',
-      title: 'Practice',
+      title: 'Давтлага',
       topicId: interestIds.isEmpty ? 'animals' : interestIds.first,
       activities: activities,
       coinReward: 0,
@@ -173,7 +189,9 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     final session = _session;
     if (session == null || session.isComplete) return;
     final activity = session.current;
-    ref.read(ttsServiceProvider).speak(activity.spokenPrompt ?? activity.prompt);
+    ref
+        .read(ttsServiceProvider)
+        .speak(activity.spokenPrompt ?? activity.prompt);
   }
 
   void _onChoiceTap(int index) {
@@ -188,7 +206,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     });
     ref
         .read(ttsServiceProvider)
-        .speak(correct ? 'Nice job!' : "Not quite — it's this one!");
+        .speak(correct ? 'Маш сайн!' : 'За, дахин оролдоод үзье!');
     _advanceTimer = Timer(
       correct ? _correctAdvanceDelay : _wrongAdvanceDelay,
       _advance,
@@ -204,7 +222,7 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
       _tappedIndex = null;
       _phase = clean ? _Phase.correct : _Phase.wrong;
     });
-    ref.read(ttsServiceProvider).speak(clean ? 'Nice job!' : 'Good try!');
+    ref.read(ttsServiceProvider).speak(clean ? 'Маш сайн!' : 'Сайн байна!');
     _advanceTimer = Timer(
       clean ? _correctAdvanceDelay : const Duration(milliseconds: 1500),
       _advance,
@@ -226,7 +244,9 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
 
     final child = ref.read(childControllerProvider).selectedChild;
     if (_trackProgress && child != null) {
-      await ref.read(childControllerProvider.notifier).updateCheckpoint(
+      await ref
+          .read(childControllerProvider.notifier)
+          .updateCheckpoint(
             child.id,
             lessonId: _lesson.id,
             checkpoint: session.checkpoint,
@@ -259,8 +279,11 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
       await controller.removeMistakes(child.id, cleared);
     } else {
       firstCompletion = !child.completedLessonIds.contains(lesson.id);
-      await controller.completeLesson(child.id, lesson.id,
-          coinReward: lesson.coinReward);
+      await controller.completeLesson(
+        child.id,
+        lesson.id,
+        coinReward: lesson.coinReward,
+      );
     }
     await controller.recordLessonResults(
       child.id,
@@ -276,8 +299,11 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     final updated = ref.read(childControllerProvider).selectedChild ?? child;
     final next = course.next(lesson.id);
     if (_trackProgress && next != null) {
-      await controller.updateCheckpoint(child.id,
-          lessonId: next.id, checkpoint: 0);
+      await controller.updateCheckpoint(
+        child.id,
+        lessonId: next.id,
+        checkpoint: 0,
+      );
     }
 
     if (!mounted) return;
@@ -288,7 +314,8 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
       _accuracyCorrect = session.answersCorrectFirstTry;
       _accuracyTotal = session.answersTotal;
       _streak = updated.dailyStreak;
-      _courseFinished = !widget.practice &&
+      _courseFinished =
+          !widget.practice &&
           course.firstIncomplete(updated.completedLessonIds) == null;
     });
   }
@@ -297,19 +324,19 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Stop the lesson?'),
-        content: const Text('Your progress in this lesson is saved.'),
+        title: const Text('Хичээлээ зогсоох уу?'),
+        content: const Text('Энэ хичээл дээрх явц хадгалагдана.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Keep going'),
+            child: const Text('Үргэлжлүүлэх'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               context.go('/home');
             },
-            child: const Text('Exit', style: TextStyle(color: Colors.red)),
+            child: const Text('Гарах', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -321,6 +348,16 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
     final session = _session;
     if (_loading || session == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_intro != null && !_introDone && !_completed) {
+      return LetterIntroFlow(
+        glyph: _intro!,
+        onExit: () => context.go('/home'),
+        onDone: () {
+          setState(() => _introDone = true);
+          _speakPrompt();
+        },
+      );
     }
     if (_completed) {
       return LessonCompleteScreen(
@@ -374,7 +411,9 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
                     ? Text(
                         '${session.combo} in a row! 🔥',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.grey),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
                         textAlign: TextAlign.center,
                       )
                     : null,
@@ -386,7 +425,9 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
                     child: Text(
                       activity.prompt,
                       style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -430,7 +471,8 @@ class _LessonPlayerScreenState extends ConsumerState<LessonPlayerScreen> {
       default:
         break;
     }
-    final isGrid = activity.type == ActivityType.choicePicture ||
+    final isGrid =
+        activity.type == ActivityType.choicePicture ||
         activity.type == ActivityType.trueFalse;
     if (isGrid) {
       // Non-scrolling 2-wide grid that always fits the available height:
@@ -515,8 +557,8 @@ class _FeedbackBanner extends StatelessWidget {
     // Parent-facing garnish; the tile highlight carries the real feedback.
     final (text, color) = switch (phase) {
       _Phase.answering => ('', Colors.transparent),
-      _Phase.correct => ('✅ Nice job!', Colors.green.shade100),
-      _Phase.wrong => ('❌ Not quite', Colors.red.shade100),
+      _Phase.correct => ('✅ Маш сайн!', Colors.green.shade100),
+      _Phase.wrong => ('❌ Дахин оролдоно уу', Colors.red.shade100),
     };
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),

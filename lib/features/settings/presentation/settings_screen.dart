@@ -18,37 +18,36 @@ class SettingsScreen extends ConsumerWidget {
     final child = ref.watch(childControllerProvider).selectedChild;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: const Text('Тохиргоо')),
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('Sound & voice'),
-            subtitle: const Text('Spoken prompts and feedback'),
+            title: const Text('Дуу ба хоолой'),
+            subtitle: const Text('Дуут заавар ба сэтгэгдэл'),
             activeThumbColor: Colors.black,
             value: settings.soundOn,
-            onChanged: (value) => ref
-                .read(settingsControllerProvider.notifier)
-                .setSoundOn(value),
+            onChanged: (value) =>
+                ref.read(settingsControllerProvider.notifier).setSoundOn(value),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person, color: Colors.black),
-            title: Text(auth.parentName ?? 'Parent'),
+            title: Text(auth.parentName ?? 'Эцэг эх'),
             subtitle: Text(auth.accountId ?? ''),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.swap_horiz, color: Colors.black),
-            title: const Text('Change child'),
+            title: const Text('Хүүхэд солих'),
             onTap: () => context.go('/select-child'),
           ),
           if (child != null) ...[
             const Divider(),
             ListTile(
               leading: const Text('🎪', style: TextStyle(fontSize: 22)),
-              title: const Text('Redo the playground'),
+              title: const Text('Тоглоомын шалгалтыг дахин өгөх'),
               subtitle: child.placementCoreScore != null
-                  ? Text('Last score: ${child.placementCoreScore}/100')
+                  ? Text('Сүүлийн оноо: ${child.placementCoreScore}/100')
                   : null,
               onTap: () {
                 // The provider may still hold a completed session from an
@@ -62,23 +61,26 @@ class SettingsScreen extends ConsumerWidget {
             if (child.placedLessonIds.isNotEmpty)
               ListTile(
                 leading: const Icon(Icons.replay, color: Colors.black),
-                title: const Text('Start over from Lesson 1'),
+                title: const Text('1-р хичээлээс дахин эхлэх'),
                 subtitle: const Text(
-                    "Clears placement credit; lessons they've actually played stay complete"),
+                  'Шалгалтаар авсан оноог арилгана; жинхэнээсээ тоглосон хичээлүүд хэвээр үлдэнэ',
+                ),
                 onTap: () => _confirmResetPlacement(context, ref, child.id),
               ),
           ],
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Log out', style: TextStyle(color: Colors.red)),
+            title: const Text('Гарах', style: TextStyle(color: Colors.red)),
             onTap: () => _confirmLogout(context, ref),
           ),
           ListTile(
             leading: const Icon(Icons.delete_forever, color: Colors.red),
-            title: const Text('Delete all data on this device',
-                style: TextStyle(color: Colors.red)),
-            subtitle: const Text('Removes every child and all progress'),
+            title: const Text(
+              'Энэ төхөөрөмжийн бүх өгөгдлийг устгах',
+              style: TextStyle(color: Colors.red),
+            ),
+            subtitle: const Text('Бүх хүүхэд болон бүх явцыг устгана'),
             onTap: () => _confirmDelete(context, ref),
           ),
         ],
@@ -90,13 +92,12 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Log out?'),
-        content:
-            const Text("You'll need to log in again to continue learning."),
+        title: const Text('Гарах уу?'),
+        content: const Text('Үргэлжлүүлэн суралцахын тулд дахин нэвтэрнэ үү.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: const Text('Болих'),
           ),
           TextButton(
             onPressed: () async {
@@ -104,7 +105,7 @@ class SettingsScreen extends ConsumerWidget {
               await ref.read(authControllerProvider.notifier).logout();
               if (context.mounted) context.go('/');
             },
-            child: const Text('Log out', style: TextStyle(color: Colors.red)),
+            child: const Text('Гарах', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -113,18 +114,23 @@ class SettingsScreen extends ConsumerWidget {
 
   /// PROJECT_V4.md §7.3: undoes only the lessons the placement playground
   /// auto-credited. Lessons the child actually played stay complete.
-  void _confirmResetPlacement(BuildContext context, WidgetRef ref, String childId) {
+  void _confirmResetPlacement(
+    BuildContext context,
+    WidgetRef ref,
+    String childId,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Start over from Lesson 1?'),
+        title: const Text('1-р хичээлээс дахин эхлэх үү?'),
         content: const Text(
-            "This clears placement credit for lessons your child hasn't "
-            'actually played yet. Progress they\'ve really completed stays.'),
+          'Хүүхдийн жинхэнээсээ тоглоогүй хичээлүүдийн шалгалтаар авсан оноог арилгана. '
+          'Бодитоор дууссан явц хэвээр үлдэнэ.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: const Text('Болих'),
           ),
           TextButton(
             onPressed: () async {
@@ -133,7 +139,10 @@ class SettingsScreen extends ConsumerWidget {
                   .read(childControllerProvider.notifier)
                   .resetPlacementToLessonOne(childId);
             },
-            child: const Text('Start over', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Start over',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -145,13 +154,14 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (firstContext) => AlertDialog(
-        title: const Text('Delete all data?'),
+        title: const Text('Бүх өгөгдлийг устгах уу?'),
         content: const Text(
-            'Every child profile and all learning progress on this device will be removed.'),
+          'Энэ төхөөрөмж дээрх бүх хүүхдийн профайл болон суралцсан явц устгагдана.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(firstContext),
-            child: const Text('Cancel'),
+            child: const Text('Болих'),
           ),
           TextButton(
             onPressed: () {
@@ -159,12 +169,12 @@ class SettingsScreen extends ConsumerWidget {
               showDialog(
                 context: context,
                 builder: (secondContext) => AlertDialog(
-                  title: const Text('Are you absolutely sure?'),
-                  content: const Text('This cannot be undone.'),
+                  title: const Text('Та үнэхээр итгэлтэй байна уу?'),
+                  content: const Text('Үүнийг буцаах боломжгүй.'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(secondContext),
-                      child: const Text('Keep my data'),
+                      child: const Text('Өгөгдлөө хадгалах'),
                     ),
                     TextButton(
                       onPressed: () async {
@@ -174,8 +184,10 @@ class SettingsScreen extends ConsumerWidget {
                             .reset();
                         if (context.mounted) context.go('/select-child');
                       },
-                      child: const Text('Delete everything',
-                          style: TextStyle(color: Colors.red)),
+                      child: const Text(
+                        'Бүгдийг устгах',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ],
                 ),

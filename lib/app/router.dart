@@ -5,6 +5,7 @@ import '../features/auth/application/auth_controller.dart';
 import '../features/companion/presentation/skin_select_screen.dart';
 import '../features/lesson/presentation/lesson_player_screen.dart';
 import '../features/path/presentation/path_screen.dart';
+import '../features/placement/presentation/assessment_summary_screen.dart';
 import '../features/placement/presentation/handoff_screen.dart';
 import '../features/placement/presentation/playground_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
@@ -14,6 +15,7 @@ import '../screens/auth_screens.dart';
 import '../screens/child_select_screen.dart';
 import '../screens/onboarding_screens.dart';
 import '../screens/parent_dashboard.dart';
+import '../screens/parent_questionnaire_screen.dart';
 
 const _authFlowPaths = {
   '/',
@@ -31,6 +33,7 @@ const _authFlowPaths = {
 const _childSetupPaths = {
   '/select-child',
   '/child/new',
+  '/child/questionnaire',
   '/child/handoff',
   '/playground',
 };
@@ -71,7 +74,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Signed-in users never see the auth flow: land on the path screen,
       // auto-scrolled to the current lesson (resume is one tap on START).
       if (isAuthFlow || path == '/splash') {
-        return childSession.selectedChildId != null ? '/home' : '/select-child';
+        return childSession.selectedChildId != null
+            ? '/assessment-summary'
+            : '/select-child';
       }
       if (childSession.selectedChildId == null && !isChildSetup) {
         return '/select-child';
@@ -81,9 +86,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
       GoRoute(
@@ -125,8 +129,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/success',
         builder: (context, state) {
-          final title = state.uri.queryParameters['title'] ?? 'Success';
-          final isPasswordReset = state.uri.queryParameters['type'] == 'password';
+          final title = state.uri.queryParameters['title'] ?? 'Амжилттай';
+          final isPasswordReset =
+              state.uri.queryParameters['type'] == 'password';
           return SuccessScreen(title: title, isPasswordReset: isPasswordReset);
         },
       ),
@@ -139,12 +144,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ChildProfileScreen(),
       ),
       GoRoute(
+        path: '/child/questionnaire',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ParentQuestionnaireScreen(
+            name: extra?['name'] as String? ?? '',
+            age: extra?['age'] as int? ?? 0,
+          );
+        },
+      ),
+      GoRoute(
         path: '/child/handoff',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return HandoffScreen(
             name: extra?['name'] as String? ?? '',
             age: extra?['age'] as int? ?? 0,
+            parentExpressiveRating: extra?['parentExpressiveRating'] as int?,
+            parentPeerCommunicationRating:
+                extra?['parentPeerCommunicationRating'] as int?,
+            parentVocabularyRating: extra?['parentVocabularyRating'] as int?,
           );
         },
       ),
@@ -155,13 +174,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           return PlaygroundScreen(
             name: extra?['name'] as String?,
             age: extra?['age'] as int?,
+            parentExpressiveRating: extra?['parentExpressiveRating'] as int?,
+            parentPeerCommunicationRating:
+                extra?['parentPeerCommunicationRating'] as int?,
+            parentVocabularyRating: extra?['parentVocabularyRating'] as int?,
           );
         },
       ),
       GoRoute(
-        path: '/home',
-        builder: (context, state) => const PathScreen(),
+        path: '/assessment-summary',
+        builder: (context, state) => const AssessmentSummaryScreen(),
       ),
+      GoRoute(path: '/home', builder: (context, state) => const PathScreen()),
       GoRoute(
         path: '/lesson',
         builder: (context, state) {

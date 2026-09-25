@@ -11,8 +11,8 @@ class AuthResult {
   }) : error = null;
 
   const AuthResult.failure(String this.error)
-      : accountId = null,
-        parentName = null;
+    : accountId = null,
+      parentName = null;
 
   bool get isSuccess => accountId != null;
 }
@@ -34,7 +34,10 @@ abstract class AuthRepository {
   Future<bool> accountExists(String accountId);
 
   /// Sets a new password for [email]. Returns false if no such account.
-  Future<bool> resetPassword({required String email, required String newPassword});
+  Future<bool> resetPassword({
+    required String email,
+    required String newPassword,
+  });
 
   /// Returns the persisted signed-in account from a previous run, or null.
   Future<AuthResult?> restoreSession();

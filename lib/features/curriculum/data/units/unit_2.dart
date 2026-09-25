@@ -88,11 +88,17 @@ final unit2 = UnitTemplate(
       buildActivities: (topic, rng) => [
         biggerSmaller(rng, bigger: true),
         biggerSmaller(rng, bigger: false),
-        trueFalseFact('An elephant 🐘 is bigger than a mouse 🐭',
-            isTrue: true, skillId: 'math'),
+        trueFalseFact(
+          'An elephant 🐘 is bigger than a mouse 🐭',
+          isTrue: true,
+          skillId: 'math',
+        ),
         biggerSmaller(rng, bigger: true),
-        trueFalseFact('An ant 🐜 is bigger than a bus 🚌',
-            isTrue: false, skillId: 'math'),
+        trueFalseFact(
+          'An ant 🐜 is bigger than a bus 🚌',
+          isTrue: false,
+          skillId: 'math',
+        ),
         biggerSmaller(rng, bigger: false),
       ],
     ),

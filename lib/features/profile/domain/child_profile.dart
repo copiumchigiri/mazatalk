@@ -52,6 +52,13 @@ class ChildProfile {
   final int? emotionAwareness;
   final bool? readyForMultiStep;
 
+  // Parent intake questionnaire — asked once right after profile creation,
+  // before the child ever touches the phone. 1–5 Likert ratings, null until
+  // the questionnaire runs.
+  final int? parentExpressiveRating;
+  final int? parentPeerCommunicationRating;
+  final int? parentVocabularyRating;
+
   const ChildProfile({
     required this.id,
     required this.name,
@@ -79,6 +86,9 @@ class ChildProfile {
     this.shapeAwareness,
     this.emotionAwareness,
     this.readyForMultiStep,
+    this.parentExpressiveRating,
+    this.parentPeerCommunicationRating,
+    this.parentVocabularyRating,
   });
 
   ChildProfile copyWith({
@@ -136,66 +146,73 @@ class ChildProfile {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'age': age,
-        'interestIds': interestIds,
-        'disabilities': disabilities,
-        'preferNotToSay': preferNotToSay,
-        'coins': coins,
-        'equippedSkinId': equippedSkinId,
-        'unlockedSkinIds': unlockedSkinIds,
-        'completedLessonIds': completedLessonIds,
-        'currentLessonId': currentLessonId,
-        'currentCheckpoint': currentCheckpoint,
-        'xp': xp,
-        'dailyStreak': dailyStreak,
-        'lastActiveDate': lastActiveDate,
-        'mistakeBank': mistakeBank,
-        'openedChestIds': openedChestIds,
-        'answersTotal': answersTotal,
-        'answersCorrectFirstTry': answersCorrectFirstTry,
-        'placementCompleted': placementCompleted,
-        'placementCoreScore': placementCoreScore,
-        'placedLessonIds': placedLessonIds,
-        'verbalComfort': verbalComfort,
-        'shapeAwareness': shapeAwareness,
-        'emotionAwareness': emotionAwareness,
-        'readyForMultiStep': readyForMultiStep,
-      };
+    'id': id,
+    'name': name,
+    'age': age,
+    'interestIds': interestIds,
+    'disabilities': disabilities,
+    'preferNotToSay': preferNotToSay,
+    'coins': coins,
+    'equippedSkinId': equippedSkinId,
+    'unlockedSkinIds': unlockedSkinIds,
+    'completedLessonIds': completedLessonIds,
+    'currentLessonId': currentLessonId,
+    'currentCheckpoint': currentCheckpoint,
+    'xp': xp,
+    'dailyStreak': dailyStreak,
+    'lastActiveDate': lastActiveDate,
+    'mistakeBank': mistakeBank,
+    'openedChestIds': openedChestIds,
+    'answersTotal': answersTotal,
+    'answersCorrectFirstTry': answersCorrectFirstTry,
+    'placementCompleted': placementCompleted,
+    'placementCoreScore': placementCoreScore,
+    'placedLessonIds': placedLessonIds,
+    'verbalComfort': verbalComfort,
+    'shapeAwareness': shapeAwareness,
+    'emotionAwareness': emotionAwareness,
+    'readyForMultiStep': readyForMultiStep,
+    'parentExpressiveRating': parentExpressiveRating,
+    'parentPeerCommunicationRating': parentPeerCommunicationRating,
+    'parentVocabularyRating': parentVocabularyRating,
+  };
 
   factory ChildProfile.fromJson(Map<String, dynamic> json) => ChildProfile(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        age: json['age'] as int,
-        interestIds: (json['interestIds'] as List?)?.cast<String>() ?? const [],
-        disabilities:
-            (json['disabilities'] as List?)?.cast<String>() ?? const [],
-        preferNotToSay: json['preferNotToSay'] as bool? ?? false,
-        coins: json['coins'] as int? ?? 0,
-        equippedSkinId:
-            json['equippedSkinId'] as String? ?? SkinCatalog.defaultSkinId,
-        unlockedSkinIds: (json['unlockedSkinIds'] as List?)?.cast<String>() ??
-            const [SkinCatalog.defaultSkinId],
-        completedLessonIds:
-            (json['completedLessonIds'] as List?)?.cast<String>() ?? const [],
-        currentLessonId: json['currentLessonId'] as String?,
-        currentCheckpoint: json['currentCheckpoint'] as int? ?? 0,
-        xp: json['xp'] as int? ?? 0,
-        dailyStreak: json['dailyStreak'] as int? ?? 0,
-        lastActiveDate: json['lastActiveDate'] as String?,
-        mistakeBank: (json['mistakeBank'] as List?)?.cast<String>() ?? const [],
-        openedChestIds:
-            (json['openedChestIds'] as List?)?.cast<String>() ?? const [],
-        answersTotal: json['answersTotal'] as int? ?? 0,
-        answersCorrectFirstTry: json['answersCorrectFirstTry'] as int? ?? 0,
-        placementCompleted: json['placementCompleted'] as bool? ?? false,
-        placementCoreScore: json['placementCoreScore'] as int?,
-        placedLessonIds:
-            (json['placedLessonIds'] as List?)?.cast<String>() ?? const [],
-        verbalComfort: json['verbalComfort'] as int?,
-        shapeAwareness: json['shapeAwareness'] as int?,
-        emotionAwareness: json['emotionAwareness'] as int?,
-        readyForMultiStep: json['readyForMultiStep'] as bool?,
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    age: json['age'] as int,
+    interestIds: (json['interestIds'] as List?)?.cast<String>() ?? const [],
+    disabilities: (json['disabilities'] as List?)?.cast<String>() ?? const [],
+    preferNotToSay: json['preferNotToSay'] as bool? ?? false,
+    coins: json['coins'] as int? ?? 0,
+    equippedSkinId:
+        json['equippedSkinId'] as String? ?? SkinCatalog.defaultSkinId,
+    unlockedSkinIds:
+        (json['unlockedSkinIds'] as List?)?.cast<String>() ??
+        const [SkinCatalog.defaultSkinId],
+    completedLessonIds:
+        (json['completedLessonIds'] as List?)?.cast<String>() ?? const [],
+    currentLessonId: json['currentLessonId'] as String?,
+    currentCheckpoint: json['currentCheckpoint'] as int? ?? 0,
+    xp: json['xp'] as int? ?? 0,
+    dailyStreak: json['dailyStreak'] as int? ?? 0,
+    lastActiveDate: json['lastActiveDate'] as String?,
+    mistakeBank: (json['mistakeBank'] as List?)?.cast<String>() ?? const [],
+    openedChestIds:
+        (json['openedChestIds'] as List?)?.cast<String>() ?? const [],
+    answersTotal: json['answersTotal'] as int? ?? 0,
+    answersCorrectFirstTry: json['answersCorrectFirstTry'] as int? ?? 0,
+    placementCompleted: json['placementCompleted'] as bool? ?? false,
+    placementCoreScore: json['placementCoreScore'] as int?,
+    placedLessonIds:
+        (json['placedLessonIds'] as List?)?.cast<String>() ?? const [],
+    verbalComfort: json['verbalComfort'] as int?,
+    shapeAwareness: json['shapeAwareness'] as int?,
+    emotionAwareness: json['emotionAwareness'] as int?,
+    readyForMultiStep: json['readyForMultiStep'] as bool?,
+    parentExpressiveRating: json['parentExpressiveRating'] as int?,
+    parentPeerCommunicationRating:
+        json['parentPeerCommunicationRating'] as int?,
+    parentVocabularyRating: json['parentVocabularyRating'] as int?,
+  );
 }

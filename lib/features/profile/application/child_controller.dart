@@ -10,8 +10,9 @@ import '../domain/child_profile.dart';
 /// produces a new repository, which rebuilds [ChildController] with that
 /// account's children.
 final childRepositoryProvider = Provider<ChildRepository>((ref) {
-  final accountId =
-      ref.watch(authControllerProvider.select((s) => s.accountId));
+  final accountId = ref.watch(
+    authControllerProvider.select((s) => s.accountId),
+  );
   return LocalChildRepository(accountId: accountId);
 });
 
@@ -37,8 +38,9 @@ class ChildSessionState {
   }) {
     return ChildSessionState(
       children: children ?? this.children,
-      selectedChildId:
-          clearSelectedChildId ? null : (selectedChildId ?? this.selectedChildId),
+      selectedChildId: clearSelectedChildId
+          ? null
+          : (selectedChildId ?? this.selectedChildId),
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -136,7 +138,8 @@ class ChildController extends Notifier<ChildSessionState> {
   }) {
     return _updateChild(
       childId,
-      (c) => c.copyWith(currentLessonId: lessonId, currentCheckpoint: checkpoint),
+      (c) =>
+          c.copyWith(currentLessonId: lessonId, currentCheckpoint: checkpoint),
     );
   }
 
@@ -155,25 +158,23 @@ class ChildController extends Notifier<ChildSessionState> {
     DateTime? now,
   }) {
     final today = _dateKey(now ?? DateTime.now());
-    final yesterday =
-        _dateKey((now ?? DateTime.now()).subtract(const Duration(days: 1)));
-    return _updateChild(
-      childId,
-      (c) {
-        final streak = c.lastActiveDate == today
-            ? c.dailyStreak
-            : (c.lastActiveDate == yesterday ? c.dailyStreak + 1 : 1);
-        return c.copyWith(
-          xp: c.xp + xp,
-          answersTotal: c.answersTotal + answersTotal,
-          answersCorrectFirstTry:
-              c.answersCorrectFirstTry + answersCorrectFirstTry,
-          mistakeBank: {...c.mistakeBank, ...mistakes}.toList(),
-          dailyStreak: streak,
-          lastActiveDate: today,
-        );
-      },
+    final yesterday = _dateKey(
+      (now ?? DateTime.now()).subtract(const Duration(days: 1)),
     );
+    return _updateChild(childId, (c) {
+      final streak = c.lastActiveDate == today
+          ? c.dailyStreak
+          : (c.lastActiveDate == yesterday ? c.dailyStreak + 1 : 1);
+      return c.copyWith(
+        xp: c.xp + xp,
+        answersTotal: c.answersTotal + answersTotal,
+        answersCorrectFirstTry:
+            c.answersCorrectFirstTry + answersCorrectFirstTry,
+        mistakeBank: {...c.mistakeBank, ...mistakes}.toList(),
+        dailyStreak: streak,
+        lastActiveDate: today,
+      );
+    });
   }
 
   /// Practice mode: items answered right on the first try leave the bank.
@@ -182,15 +183,18 @@ class ChildController extends Notifier<ChildSessionState> {
     return _updateChild(
       childId,
       (c) => c.copyWith(
-        mistakeBank:
-            c.mistakeBank.where((m) => !cleared.contains(m)).toList(),
+        mistakeBank: c.mistakeBank.where((m) => !cleared.contains(m)).toList(),
       ),
     );
   }
 
   /// Opens a path chest once, paying out its bonus coins. Returns false if
   /// it was already opened (no state change).
-  Future<bool> openChest(String childId, String chestId, {int coins = 15}) async {
+  Future<bool> openChest(
+    String childId,
+    String chestId, {
+    int coins = 15,
+  }) async {
     final child = state.children.where((c) => c.id == childId).firstOrNull;
     if (child == null || child.openedChestIds.contains(chestId)) return false;
     await _updateChild(
@@ -210,8 +214,9 @@ class ChildController extends Notifier<ChildSessionState> {
   /// or a prior placement already credited.
   Future<void> reapplyPlacement(String childId, PlacementResult result) {
     return _updateChild(childId, (c) {
-      final newlyPlaced = result.placedLessonIds
-          .where((id) => !c.completedLessonIds.contains(id));
+      final newlyPlaced = result.placedLessonIds.where(
+        (id) => !c.completedLessonIds.contains(id),
+      );
       return c.copyWith(
         interestIds: result.interestIds,
         completedLessonIds: {...c.completedLessonIds, ...newlyPlaced}.toList(),

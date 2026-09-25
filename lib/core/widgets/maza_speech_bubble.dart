@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/tts_service.dart';
 
@@ -45,10 +46,12 @@ class _MazaSpeechBubbleState extends ConsumerState<MazaSpeechBubble>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _bobAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -8.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -8.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(parent: _bobController, curve: Curves.easeInOut));
+    _bobAnimation = TweenSequence<double>(
+      [
+        TweenSequenceItem(tween: Tween(begin: 0.0, end: -8.0), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: -8.0, end: 0.0), weight: 1),
+      ],
+    ).animate(CurvedAnimation(parent: _bobController, curve: Curves.easeInOut));
     if (widget.autoSpeak) _speak();
   }
 
@@ -83,7 +86,9 @@ class _MazaSpeechBubbleState extends ConsumerState<MazaSpeechBubble>
           child: const _MazaAvatar(),
         ),
         const SizedBox(width: 4),
-        Expanded(child: _Bubble(text: widget.text, onReplay: _speak)),
+        Expanded(
+          child: _Bubble(text: widget.text, onReplay: _speak),
+        ),
       ],
     );
   }
@@ -100,24 +105,42 @@ class _Bubble extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          padding: const EdgeInsets.only(left: 20, right: 4, top: 10, bottom: 10),
+          // Fixed minimum height so the bubble (and everything under it)
+          // doesn't jump between short and long lines.
+          constraints: const BoxConstraints(minHeight: 104),
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 4,
+            top: 10,
+            bottom: 10,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(color: Colors.black, width: 2),
-            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.primaryLight, width: 2),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(color: AppColors.primaryLight, offset: Offset(0, 4)),
+            ],
           ),
           child: Row(
             children: [
               Expanded(
                 child: Text(
                   text,
-                  style:
-                      const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.volume_up, color: Colors.black),
-                tooltip: 'Hear it again',
+                icon: const Icon(
+                  Icons.volume_up_rounded,
+                  color: AppColors.primary,
+                ),
+                tooltip: 'Дахин сонсох',
                 onPressed: onReplay,
               ),
             ],
@@ -134,7 +157,10 @@ class _Bubble extends StatelessWidget {
               height: 14,
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border.all(color: Colors.black, width: 2),
+                border: Border(
+                  left: BorderSide(color: AppColors.primaryLight, width: 2),
+                  bottom: BorderSide(color: AppColors.primaryLight, width: 2),
+                ),
               ),
             ),
           ),
@@ -155,9 +181,10 @@ class _MazaAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.white,
-        border: Border.all(color: Colors.black, width: 2),
+        border: Border.all(color: AppColors.primary, width: 3),
       ),
-      child: const Center(child: Text('🐻', style: TextStyle(fontSize: 32))),
+      clipBehavior: Clip.antiAlias,
+      child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
     );
   }
 }

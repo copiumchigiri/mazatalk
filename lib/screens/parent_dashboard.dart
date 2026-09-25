@@ -8,14 +8,14 @@ import '../features/profile/domain/child_profile.dart';
 import '../features/profile/domain/interest.dart';
 
 const _skillLabels = {
-  'letters': 'Letters 🅰️',
-  'counting': 'Counting 🔢',
-  'colors': 'Colors 🎨',
-  'shapes': 'Shapes 🔷',
-  'reading': 'Reading 📖',
-  'vocabulary': 'Words 💬',
-  'math': 'Math ➕',
-  'eq': 'Feelings ❤️',
+  'letters': 'Үсэг 🅰️',
+  'counting': 'Тоолол 🔢',
+  'colors': 'Өнгө 🎨',
+  'shapes': 'Хэлбэр 🔷',
+  'reading': 'Унших 📖',
+  'vocabulary': 'Үг 💬',
+  'math': 'Математик ➕',
+  'eq': 'Мэдрэмж ❤️',
 };
 
 /// Parent-facing stats, all computed from the child's real progress data.
@@ -29,14 +29,16 @@ class ParentDashboardScreen extends ConsumerWidget {
     final course = child == null
         ? null
         : ref
-            .read(courseResolverProvider)
-            .forChild(childId: child.id, interestIds: child.interestIds);
+              .read(courseResolverProvider)
+              .forChild(childId: child.id, interestIds: child.interestIds);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Parent Dashboard",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        title: const Text(
+          "Эцэг эхийн самбар",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -48,7 +50,7 @@ class ParentDashboardScreen extends ConsumerWidget {
         ),
       ),
       body: child == null || course == null
-          ? const Center(child: Text("No child selected yet."))
+          ? const Center(child: Text("Хүүхэд сонгоогүй байна."))
           : _DashboardBody(child: child, course: course),
     );
   }
@@ -63,8 +65,9 @@ class _DashboardBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final completed = child.completedLessonIds.toSet();
     final currentUnit = course.unitOf(
-        course.firstIncomplete(child.completedLessonIds)?.id ??
-            course.lessons.last.id);
+      course.firstIncomplete(child.completedLessonIds)?.id ??
+          course.lessons.last.id,
+    );
     final accuracy = child.answersTotal == 0
         ? null
         : (child.answersCorrectFirstTry * 100 / child.answersTotal).round();
@@ -87,19 +90,20 @@ class _DashboardBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "${child.name}'s progress",
+            "${child.name}-ийн явц",
             style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                color: Colors.grey,
-                letterSpacing: 1.5),
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: Colors.grey,
+              letterSpacing: 1.5,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: _metricCard(
-                  "Lessons",
+                  "Хичээл",
                   "${completed.length}/${course.lessons.length}",
                   Colors.green.shade50,
                 ),
@@ -107,7 +111,7 @@ class _DashboardBody extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _metricCard(
-                  "Accuracy",
+                  "Оновчтой байдал",
                   accuracy == null ? "—" : "$accuracy%",
                   Colors.blue.shade50,
                 ),
@@ -119,11 +123,18 @@ class _DashboardBody extends StatelessWidget {
             children: [
               Expanded(
                 child: _metricCard(
-                    "Daily streak", "🔥 ${child.dailyStreak}", Colors.orange.shade50),
+                  "Daily streak",
+                  "🔥 ${child.dailyStreak}",
+                  Colors.orange.shade50,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _metricCard("XP", "⚡ ${child.xp}", Colors.purple.shade50),
+                child: _metricCard(
+                  "XP",
+                  "⚡ ${child.xp}",
+                  Colors.purple.shade50,
+                ),
               ),
             ],
           ),
@@ -131,13 +142,16 @@ class _DashboardBody extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child:
-                    _metricCard("Coins", "🪙 ${child.coins}", Colors.amber.shade50),
+                child: _metricCard(
+                  "Coins",
+                  "🪙 ${child.coins}",
+                  Colors.amber.shade50,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _metricCard(
-                  "To practice",
+                  "Давтах",
                   "🔁 ${child.mistakeBank.length}",
                   Colors.red.shade50,
                 ),
@@ -147,15 +161,18 @@ class _DashboardBody extends StatelessWidget {
           if (currentUnit != null) ...[
             const SizedBox(height: 16),
             Text(
-              "Now learning: ${currentUnit.emoji} ${currentUnit.title}",
+              "Одоо үзэж буй: ${currentUnit.emoji} ${currentUnit.title}",
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ],
           const Divider(height: 40),
           const Text(
-            "COURSE MILESTONES",
+            "ХИЧЭЭЛИЙН ҮЕ ШАТ",
             style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              color: Colors.grey,
+            ),
           ),
           const SizedBox(height: 12),
           for (final unit in course.units)
@@ -163,21 +180,24 @@ class _DashboardBody extends StatelessWidget {
               '${unit.emoji} ${unit.title}',
               unit.lessons.isEmpty
                   ? 0.0
-                  : unit.lessons
-                          .where((l) => completed.contains(l.id))
-                          .length /
-                      unit.lessons.length,
+                  : unit.lessons.where((l) => completed.contains(l.id)).length /
+                        unit.lessons.length,
             ),
           const Divider(height: 40),
           const Text(
-            "SKILLS PRACTICED",
+            "ДАДЛАГАЖСАН ЧАДВАР",
             style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              color: Colors.grey,
+            ),
           ),
           const SizedBox(height: 12),
           if (totalActivities == 0)
-            const Text("No lessons finished yet.",
-                style: TextStyle(color: Colors.grey))
+            const Text(
+              "Дууссан хичээл алга.",
+              style: TextStyle(color: Colors.grey),
+            )
           else
             for (final entry in _skillLabels.entries)
               if ((skillCounts[entry.key] ?? 0) > 0)
@@ -188,7 +208,7 @@ class _DashboardBody extends StatelessWidget {
                 ),
           const SizedBox(height: 24),
           Text(
-            "Interests: ${child.interestIds.map((id) => interestFromId(id)?.label ?? id).join(', ')}",
+            "Сонирхол: ${child.interestIds.map((id) => interestFromId(id)?.label ?? id).join(', ')}",
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 40),

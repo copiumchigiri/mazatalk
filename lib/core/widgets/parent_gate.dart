@@ -53,19 +53,21 @@ class _ParentGateDialogState extends State<_ParentGateDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('For grown-ups!'),
+      title: const Text('Том хүнд зориулав!'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Tap ${widget.first} then ${widget.second}',
+            '${widget.first}, дараа нь ${widget.second} дээр дар',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           if (_showError)
             const Padding(
               padding: EdgeInsets.only(top: 4),
-              child: Text('Try again',
-                  style: TextStyle(color: Colors.red, fontSize: 12)),
+              child: Text(
+                'Дахин оролдоно уу',
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              ),
             ),
           const SizedBox(height: 12),
           for (var row = 0; row < 3; row++)
@@ -84,9 +86,13 @@ class _ParentGateDialogState extends State<_ParentGateDialog> {
                           side: const BorderSide(color: Colors.black),
                         ),
                         onPressed: () => _tap(row * 3 + col + 1),
-                        child: Text('${row * 3 + col + 1}',
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          '${row * 3 + col + 1}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -97,7 +103,7 @@ class _ParentGateDialogState extends State<_ParentGateDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
+          child: const Text('Болих'),
         ),
       ],
     );

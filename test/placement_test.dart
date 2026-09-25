@@ -8,27 +8,30 @@ import 'package:mazatalk/features/profile/data/local_child_repository.dart';
 import 'package:mazatalk/features/profile/domain/child_profile.dart';
 
 void main() {
-  group('startingLessonIdForCoreScore bucket boundaries (PROJECT_V4.md §7.2)', () {
-    final cases = {
-      0: 'u1l1',
-      20: 'u1l1',
-      21: 'u1l2',
-      40: 'u1l2',
-      41: 'u1l3',
-      55: 'u1l3',
-      56: 'u1l4',
-      70: 'u1l4',
-      71: 'u1l5',
-      85: 'u1l5',
-      86: 'u1l6',
-      100: 'u1l6',
-    };
-    cases.forEach((score, expected) {
-      test('score $score -> $expected', () {
-        expect(startingLessonIdForCoreScore(score), expected);
+  group(
+    'startingLessonIdForCoreScore bucket boundaries (PROJECT_V4.md §7.2)',
+    () {
+      final cases = {
+        0: 'u1l1',
+        20: 'u1l1',
+        21: 'u1l2',
+        40: 'u1l2',
+        41: 'u1l3',
+        55: 'u1l3',
+        56: 'u1l4',
+        70: 'u1l4',
+        71: 'u1l5',
+        85: 'u1l5',
+        86: 'u1l6',
+        100: 'u1l6',
+      };
+      cases.forEach((score, expected) {
+        test('score $score -> $expected', () {
+          expect(startingLessonIdForCoreScore(score), expected);
+        });
       });
-    });
-  });
+    },
+  );
 
   group('PlacementResult.fromLevelScores', () {
     test('core score is the sum of exactly the 5 core levels, normalized', () {
@@ -53,23 +56,26 @@ void main() {
       expect(result.placedLessonIds, ['u1l1', 'u1l2', 'u1l3', 'u1l4', 'u1l5']);
     });
 
-    test('an entirely non-responsive session still reaches the lowest bucket', () {
-      // The floor score for every core level's timeout is 2 (never 0, but
-      // low enough that 5 x 2 = 10 -> 20%, landing in the 0-20 bucket).
-      final result = PlacementResult.fromLevelScores(
-        levelScores: {
-          PlaygroundLevelId.findTheBall: 2,
-          PlaygroundLevelId.tapTheColor: 2,
-          PlaygroundLevelId.countTheFriends: 2,
-          PlaygroundLevelId.findTheLetter: 2,
-          PlaygroundLevelId.copyThePattern: 2,
-        },
-        interestIds: const ['dinosaurs'],
-      );
-      expect(result.coreScore, 20);
-      expect(result.startingLessonId, 'u1l1');
-      expect(result.placedLessonIds, isEmpty);
-    });
+    test(
+      'an entirely non-responsive session still reaches the lowest bucket',
+      () {
+        // The floor score for every core level's timeout is 2 (never 0, but
+        // low enough that 5 x 2 = 10 -> 20%, landing in the 0-20 bucket).
+        final result = PlacementResult.fromLevelScores(
+          levelScores: {
+            PlaygroundLevelId.findTheBall: 2,
+            PlaygroundLevelId.tapTheColor: 2,
+            PlaygroundLevelId.countTheFriends: 2,
+            PlaygroundLevelId.findTheLetter: 2,
+            PlaygroundLevelId.copyThePattern: 2,
+          },
+          interestIds: const ['dinosaurs'],
+        );
+        expect(result.coreScore, 20);
+        expect(result.startingLessonId, 'u1l1');
+        expect(result.placedLessonIds, isEmpty);
+      },
+    );
 
     test('missing core level scores count as zero, not an error', () {
       final result = PlacementResult.fromLevelScores(
@@ -109,11 +115,13 @@ void main() {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
     Future<(ProviderContainer, ChildController)> makeController() async {
-      final container = ProviderContainer(overrides: [
-        childRepositoryProvider.overrideWithValue(
-          const LocalChildRepository(accountId: 'test@example.com'),
-        ),
-      ]);
+      final container = ProviderContainer(
+        overrides: [
+          childRepositoryProvider.overrideWithValue(
+            const LocalChildRepository(accountId: 'test@example.com'),
+          ),
+        ],
+      );
       final controller = container.read(childControllerProvider.notifier);
       while (container.read(childControllerProvider).isLoading) {
         await Future<void>.delayed(Duration.zero);
@@ -124,7 +132,9 @@ void main() {
     test('reapplyPlacement credits placed lessons at 0 XP/0 coins', () async {
       final (container, controller) = await makeController();
       addTearDown(container.dispose);
-      await controller.addChild(const ChildProfile(id: 'c1', name: 'T', age: 5));
+      await controller.addChild(
+        const ChildProfile(id: 'c1', name: 'T', age: 5),
+      );
 
       final result = PlacementResult.fromLevelScores(
         levelScores: {
@@ -149,84 +159,95 @@ void main() {
     });
 
     test(
-        'a placed lesson later actually played never double-pays (completeLesson guard)',
-        () async {
-      final (container, controller) = await makeController();
-      addTearDown(container.dispose);
-      await controller.addChild(const ChildProfile(id: 'c1', name: 'T', age: 5));
-      await controller.reapplyPlacement(
-        'c1',
-        PlacementResult.fromLevelScores(
-          levelScores: const {
-            PlaygroundLevelId.findTheBall: 10,
-            PlaygroundLevelId.tapTheColor: 10,
-            PlaygroundLevelId.countTheFriends: 10,
-            PlaygroundLevelId.findTheLetter: 10,
-            PlaygroundLevelId.copyThePattern: 6,
-          },
-          interestIds: const ['dinosaurs'],
-        ),
-      );
-      var child = container.read(childControllerProvider).selectedChild!;
-      expect(child.placedLessonIds, isNotEmpty);
-      final placedLessonId = child.placedLessonIds.first;
+      'a placed lesson later actually played never double-pays (completeLesson guard)',
+      () async {
+        final (container, controller) = await makeController();
+        addTearDown(container.dispose);
+        await controller.addChild(
+          const ChildProfile(id: 'c1', name: 'T', age: 5),
+        );
+        await controller.reapplyPlacement(
+          'c1',
+          PlacementResult.fromLevelScores(
+            levelScores: const {
+              PlaygroundLevelId.findTheBall: 10,
+              PlaygroundLevelId.tapTheColor: 10,
+              PlaygroundLevelId.countTheFriends: 10,
+              PlaygroundLevelId.findTheLetter: 10,
+              PlaygroundLevelId.copyThePattern: 6,
+            },
+            interestIds: const ['dinosaurs'],
+          ),
+        );
+        var child = container.read(childControllerProvider).selectedChild!;
+        expect(child.placedLessonIds, isNotEmpty);
+        final placedLessonId = child.placedLessonIds.first;
 
-      // Replaying a placed lesson for real must not pay out again.
-      await controller.completeLesson('c1', placedLessonId, coinReward: 20);
-      child = container.read(childControllerProvider).selectedChild!;
-      expect(child.coins, 0);
-      expect(
-        child.completedLessonIds.where((id) => id == placedLessonId).length,
-        1,
-      );
-    });
+        // Replaying a placed lesson for real must not pay out again.
+        await controller.completeLesson('c1', placedLessonId, coinReward: 20);
+        child = container.read(childControllerProvider).selectedChild!;
+        expect(child.coins, 0);
+        expect(
+          child.completedLessonIds.where((id) => id == placedLessonId).length,
+          1,
+        );
+      },
+    );
 
-    test('reapplyPlacement never un-credits real progress (monotonic)',
-        () async {
-      final (container, controller) = await makeController();
-      addTearDown(container.dispose);
-      await controller.addChild(const ChildProfile(id: 'c1', name: 'T', age: 5));
+    test(
+      'reapplyPlacement never un-credits real progress (monotonic)',
+      () async {
+        final (container, controller) = await makeController();
+        addTearDown(container.dispose);
+        await controller.addChild(
+          const ChildProfile(id: 'c1', name: 'T', age: 5),
+        );
 
-      // Child actually plays and completes u1l1..u1l4 for real (real coins).
-      for (final id in ['u1l1', 'u1l2', 'u1l3', 'u1l4']) {
-        await controller.completeLesson('c1', id, coinReward: 20);
-      }
-      var child = container.read(childControllerProvider).selectedChild!;
-      expect(child.coins, 80);
-      expect(child.placedLessonIds, isEmpty); // none of these were "placed"
+        // Child actually plays and completes u1l1..u1l4 for real (real coins).
+        for (final id in ['u1l1', 'u1l2', 'u1l3', 'u1l4']) {
+          await controller.completeLesson('c1', id, coinReward: 20);
+        }
+        var child = container.read(childControllerProvider).selectedChild!;
+        expect(child.coins, 80);
+        expect(child.placedLessonIds, isEmpty); // none of these were "placed"
 
-      // A redo comes back with a much lower score than actual progress.
-      await controller.reapplyPlacement(
-        'c1',
-        PlacementResult.fromLevelScores(
-          levelScores: const {
-            PlaygroundLevelId.findTheBall: 2,
-            PlaygroundLevelId.tapTheColor: 2,
-            PlaygroundLevelId.countTheFriends: 2,
-            PlaygroundLevelId.findTheLetter: 2,
-            PlaygroundLevelId.copyThePattern: 2,
-          },
-          interestIds: const ['space'],
-        ),
-      );
+        // A redo comes back with a much lower score than actual progress.
+        await controller.reapplyPlacement(
+          'c1',
+          PlacementResult.fromLevelScores(
+            levelScores: const {
+              PlaygroundLevelId.findTheBall: 2,
+              PlaygroundLevelId.tapTheColor: 2,
+              PlaygroundLevelId.countTheFriends: 2,
+              PlaygroundLevelId.findTheLetter: 2,
+              PlaygroundLevelId.copyThePattern: 2,
+            },
+            interestIds: const ['space'],
+          ),
+        );
 
-      child = container.read(childControllerProvider).selectedChild!;
-      // Real progress and its coin payout are untouched.
-      expect(child.coins, 80);
-      expect(child.completedLessonIds,
-          containsAll(['u1l1', 'u1l2', 'u1l3', 'u1l4']));
-      // The low-score redo's placement bucket (Lesson 1, nothing placed)
-      // adds nothing new — it never un-credits lessons already complete.
-      expect(child.placedLessonIds, isEmpty);
-      // Interests still overwrite, per §7.3 ("Redo... overwrites the prior
-      // placement").
-      expect(child.interestIds, ['space']);
-    });
+        child = container.read(childControllerProvider).selectedChild!;
+        // Real progress and its coin payout are untouched.
+        expect(child.coins, 80);
+        expect(
+          child.completedLessonIds,
+          containsAll(['u1l1', 'u1l2', 'u1l3', 'u1l4']),
+        );
+        // The low-score redo's placement bucket (Lesson 1, nothing placed)
+        // adds nothing new — it never un-credits lessons already complete.
+        expect(child.placedLessonIds, isEmpty);
+        // Interests still overwrite, per §7.3 ("Redo... overwrites the prior
+        // placement").
+        expect(child.interestIds, ['space']);
+      },
+    );
 
     test('resetPlacementToLessonOne clears only placed lessons', () async {
       final (container, controller) = await makeController();
       addTearDown(container.dispose);
-      await controller.addChild(const ChildProfile(id: 'c1', name: 'T', age: 5));
+      await controller.addChild(
+        const ChildProfile(id: 'c1', name: 'T', age: 5),
+      );
 
       await controller.reapplyPlacement(
         'c1',
@@ -261,12 +282,16 @@ void main() {
   });
 
   group('SpeechInputService', () {
-    test('degrades to unavailable instead of throwing with no platform channel',
-        () async {
-      final service = SpeechInputService();
-      final attempt = await service.listenFor('ball',
-          timeout: const Duration(milliseconds: 10));
-      expect(attempt.result, SpeechAttemptResult.unavailable);
-    });
+    test(
+      'degrades to unavailable instead of throwing with no platform channel',
+      () async {
+        final service = SpeechInputService();
+        final attempt = await service.listenFor(
+          'ball',
+          timeout: const Duration(milliseconds: 10),
+        );
+        expect(attempt.result, SpeechAttemptResult.unavailable);
+      },
+    );
   });
 }

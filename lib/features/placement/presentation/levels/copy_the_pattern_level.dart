@@ -1,18 +1,21 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/maza_speech_bubble.dart';
-import '../../application/playground_session_controller.dart';
 import '../../domain/placement_result.dart';
-import '../playground_level_timeout_mixin.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../art/play_feedback.dart';
+import '../play_tile.dart';
 
-const _objects = ['⚽', '🎈', '🌟'];
+// Three drum pads: cyan, pink and sun-yellow.
+const _padColors = [AppColors.primary, AppColors.secondary, Color(0xFFFFC800)];
 
 enum _Phase { demo, input, celebrate }
 
 /// Level 10 — Copy the Pattern (PROJECT_V4.md §6): the playground's closing
 /// flourish and a core placement input (sequencing, Unit 1 Lesson 6/7
 /// territory). Maza taps 3 objects in order, the child repeats it; one
-/// retry (a second demo) is allowed on a mismatch before scoring.
+/// retry (a second demo) is allowed on a mismatch before scoring. There is
+/// no timeout — the level waits indefinitely for the child's input.
 class CopyThePatternLevel extends StatefulWidget {
   final int seed;
   final PlaygroundLevelComplete onComplete;
@@ -28,8 +31,8 @@ class CopyThePatternLevel extends StatefulWidget {
 }
 
 class _CopyThePatternLevelState extends State<CopyThePatternLevel>
-    with PlaygroundLevelTimeoutMixin {
-  late final List<int> _pattern; // indices into _objects, tap order
+    with PlayFeedbackMixin {
+  late final List<int> _pattern; // indices into _objectIcons, tap order
   _Phase _phase = _Phase.demo;
   int? _demoHighlight;
   int _inputProgress = 0;
@@ -40,8 +43,7 @@ class _CopyThePatternLevelState extends State<CopyThePatternLevel>
   void initState() {
     super.initState();
     final rng = Random(widget.seed ^ 'copy_the_pattern'.hashCode);
-    _pattern = List.generate(_objects.length, (i) => i)..shuffle(rng);
-    startLevelTimeout(kPlaygroundExtendedLevelTimeout, () => _finish(2, timedOut: true));
+    _pattern = List.generate(_padColors.length, (i) => i)..shuffle(rng);
     _runDemo();
   }
 
@@ -80,64 +82,68 @@ class _CopyThePatternLevelState extends State<CopyThePatternLevel>
     _runDemo();
   }
 
-  void _finish(int points, {bool timedOut = false}) {
+  void _finish(int points) {
     if (_done) return;
     _done = true;
-    cancelLevelTimeout();
     setState(() => _phase = _Phase.celebrate);
+    cheer();
     Future.delayed(const Duration(milliseconds: 900), () {
       if (!mounted) return;
-      widget.onComplete(PlaygroundLevelOutcome(points, timedOut: timedOut));
+      // Repeating the 3-step pattern, even on the retry, is the
+      // `readyForMultiStep` signal (this level replaced Memory Match there).
+      widget.onComplete(PlaygroundLevelOutcome(points, payload: points >= 6));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final promptText = switch (_phase) {
-      _Phase.demo => 'Watch Maza!',
-      _Phase.input => 'Now you try!',
-      _Phase.celebrate => 'You did it!',
+      _Phase.demo => 'Мазаг ажиглаарай!',
+      _Phase.input => 'Одоо чи оролдоорой!',
+      _Phase.celebrate => 'Чи чадлаа!',
     };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        MazaSpeechBubble(text: promptText),
-        const SizedBox(height: 32),
-        Expanded(
-          child: Center(
-            child: _phase == _Phase.celebrate
-                ? const _Celebration()
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var i = 0; i < _objects.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 20),
-                        _ObjectTile(
-                          key: Key('pattern_tile_$i'),
-                          emoji: _objects[i],
-                          highlighted: _demoHighlight == i,
-                          enabled: _phase == _Phase.input,
-                          onTap: () => _onTap(i),
-                        ),
+    return withCheer(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          MazaSpeechBubble(text: promptText),
+          const SizedBox(height: 32),
+          Expanded(
+            child: Center(
+              child: _phase == _Phase.celebrate
+                  ? const _Celebration()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (var i = 0; i < _padColors.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 20),
+                          _ObjectTile(
+                            key: Key('pattern_tile_$i'),
+                            color: _padColors[i],
+                            highlighted: _demoHighlight == i,
+                            enabled: _phase == _Phase.input,
+                            onTap: () => _onTap(i),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class _ObjectTile extends StatelessWidget {
-  final String emoji;
+  final Color color;
   final bool highlighted;
   final bool enabled;
   final VoidCallback onTap;
 
   const _ObjectTile({
     super.key,
-    required this.emoji,
+    required this.color,
     required this.highlighted,
     required this.enabled,
     required this.onTap,
@@ -145,19 +151,21 @@ class _ObjectTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 84,
-        height: 84,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: highlighted ? Colors.black : Colors.white,
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: Center(
-          child: Text(emoji, style: const TextStyle(fontSize: 40)),
+    return SizedBox(
+      width: 84,
+      height: 84,
+      child: PlayTile(
+        circle: true,
+        state: highlighted ? PlayTileState.selected : PlayTileState.normal,
+        onTap: enabled ? onTap : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withValues(alpha: highlighted ? 1 : .6),
+          ),
         ),
       ),
     );
@@ -168,14 +176,6 @@ class _Celebration extends StatelessWidget {
   const _Celebration();
 
   @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.4, end: 1.0),
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.elasticOut,
-      builder: (context, scale, child) =>
-          Transform.scale(scale: scale, child: child),
-      child: const Text('🎉⭐🎉', style: TextStyle(fontSize: 56)),
-    );
-  }
+  Widget build(BuildContext context) =>
+      const Icon(Icons.celebration, size: 56, color: AppColors.primary);
 }

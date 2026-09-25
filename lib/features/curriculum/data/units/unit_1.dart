@@ -1,29 +1,26 @@
-import 'package:mazatalk/features/profile/domain/interest.dart';
 import '../../domain/unit.dart';
 import '../activity_factories.dart';
+import '../mongolian_letters.dart';
 
 /// Unit 1 — First Sounds & Small Numbers. Single-tap activity types ONLY
 /// (see PROJECT_V3.md §5 age caps): a 4-year-old ramps up here before any
 /// multi-step task appears.
 final unit1 = UnitTemplate(
   id: 'unit1',
-  title: 'First Sounds & Small Numbers',
+  title: 'Эхний дуу ба жижиг тоо',
   emoji: '🔤',
   lessons: [
     LessonTemplate(
       id: 'u1l1',
-      title: 'Say hello!',
+      // Opens with the see / say / trace intro for «А»
+      // (`LetterCatalog.forLesson`), then these practice questions.
+      title: 'А үсэг',
       buildActivities: (topic, rng) => [
-        greetingWave(rng),
-        pictureForWord(
-          topic.label,
-          topic.emoji,
-          Interest.values.map((i) => i.emoji).toList(),
-          rng,
-        ),
-        colorTap(0), // red
-        colorTap(1), // blue
-        countObjects(topic, 1 + rng.nextInt(2), rng, range: 3),
+        mnLetterTap('А', rng),
+        mnLetterListen('А', rng),
+        mnFirstLetter('Алим', 'А', rng),
+        mnLetterTap('А', rng),
+        mnLetterListen('А', rng),
       ],
     ),
     LessonTemplate(

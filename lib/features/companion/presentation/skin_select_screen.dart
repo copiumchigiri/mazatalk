@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../profile/application/child_controller.dart';
 import '../../profile/domain/child_profile.dart';
 import '../domain/skin.dart';
+import 'skin_avatar.dart';
 
 class SkinSelectScreen extends ConsumerWidget {
   const SkinSelectScreen({super.key});
@@ -18,7 +19,7 @@ class SkinSelectScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Skins"),
+        title: const Text("Хувцас"),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
@@ -31,7 +32,13 @@ class SkinSelectScreen extends ConsumerWidget {
               children: [
                 const Text("🪙", style: TextStyle(fontSize: 14)),
                 const SizedBox(width: 4),
-                Text("${child.coins}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(
+                  "${child.coins}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
@@ -52,16 +59,23 @@ class SkinSelectScreen extends ConsumerWidget {
                     color: Colors.grey.shade100,
                   ),
                   alignment: Alignment.center,
-                  child: Text(equipped.emoji, style: const TextStyle(fontSize: 56)),
+                  child: SkinAvatar(skin: equipped, size: 104),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   equipped.name,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   equipped.rarity.label,
-                  style: TextStyle(color: equipped.rarity.color, fontWeight: FontWeight.bold, fontSize: 12),
+                  style: TextStyle(
+                    color: equipped.rarity.color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -85,7 +99,8 @@ class SkinSelectScreen extends ConsumerWidget {
                   skin: skin,
                   isUnlocked: isUnlocked,
                   isEquipped: isEquipped,
-                  onTap: () => _handleTap(context, ref, child, skin, isUnlocked),
+                  onTap: () =>
+                      _handleTap(context, ref, child, skin, isUnlocked),
                 );
               },
             ),
@@ -111,12 +126,14 @@ class SkinSelectScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text("Unlock ${skin.name}?"),
-        content: Text("This costs ${skin.price} coins. You have ${child.coins}."),
+        title: Text("${skin.name}-г нээх үү?"),
+        content: Text(
+          "Үнэ: ${skin.price} зоос. Танд ${child.coins} зоос байна.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Cancel"),
+            child: const Text("Болих"),
           ),
           TextButton(
             onPressed: () async {
@@ -124,11 +141,15 @@ class SkinSelectScreen extends ConsumerWidget {
               final success = await controller.purchaseSkin(child.id, skin.id);
               if (!success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Not enough coins yet — keep finishing lessons!")),
+                  const SnackBar(
+                    content: Text(
+                      "Зоос хүрэлцэхгүй байна — хичээлээ үргэлжлүүлээрэй!",
+                    ),
+                  ),
                 );
               }
             },
-            child: const Text("Unlock"),
+            child: const Text("Нээх"),
           ),
         ],
       ),
@@ -172,7 +193,7 @@ class _SkinTile extends StatelessWidget {
                 color: Colors.grey.shade100,
               ),
               alignment: Alignment.center,
-              child: Text(skin.emoji, style: const TextStyle(fontSize: 30)),
+              child: SkinAvatar(skin: skin, size: 54),
             ),
             const SizedBox(height: 6),
             Text(
@@ -180,17 +201,29 @@ class _SkinTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: nameColor),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: nameColor,
+              ),
             ),
             if (!isUnlocked)
               Text(
                 "🪙 ${skin.price}",
-                style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
               )
             else if (isEquipped)
               const Text(
-                "Equipped",
-                style: TextStyle(fontSize: 9, color: Colors.black, fontWeight: FontWeight.bold),
+                "Өмссөн",
+                style: TextStyle(
+                  fontSize: 9,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
           ],
         ),

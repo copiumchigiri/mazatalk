@@ -35,7 +35,7 @@ class SpeechInputService {
   bool? _available;
 
   SpeechInputService({stt.SpeechToText? speech})
-      : _speech = speech ?? stt.SpeechToText();
+    : _speech = speech ?? stt.SpeechToText();
 
   Future<bool> _ensureAvailable() async {
     if (_available != null) return _available!;
@@ -63,6 +63,7 @@ class SpeechInputService {
 
       var heard = '';
       var heardAnySound = false;
+      final localeId = await _pickLocale();
 
       await _speech.listen(
         onResult: (result) => heard = result.recognizedWords,
@@ -73,6 +74,7 @@ class SpeechInputService {
           listenFor: timeout,
           pauseFor: timeout,
           partialResults: true,
+          localeId: localeId,
         ),
       );
 
@@ -80,15 +82,34 @@ class SpeechInputService {
       await _speech.stop();
 
       if (heard.isNotEmpty && _looksLikeMatch(heard, targetWord)) {
-        return SpeechAttempt(SpeechAttemptResult.matched, recognizedWords: heard);
+        return SpeechAttempt(
+          SpeechAttemptResult.matched,
+          recognizedWords: heard,
+        );
       }
       if (heard.isNotEmpty || heardAnySound) {
-        return SpeechAttempt(SpeechAttemptResult.vocalized, recognizedWords: heard);
+        return SpeechAttempt(
+          SpeechAttemptResult.vocalized,
+          recognizedWords: heard,
+        );
       }
       return const SpeechAttempt(SpeechAttemptResult.silent);
     } catch (_) {
       return const SpeechAttempt(SpeechAttemptResult.unavailable);
     }
+  }
+
+  /// Prefers a Mongolian recognizer; null lets the platform use its default
+  /// (many devices ship none, in which case results just stay empty and the
+  /// level scores the attempt as vocalized/silent — never as an error).
+  Future<String?> _pickLocale() async {
+    try {
+      final locales = await _speech.locales();
+      for (final l in locales) {
+        if (l.localeId.toLowerCase().startsWith('mn')) return l.localeId;
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> stop() async {
@@ -104,7 +125,7 @@ class SpeechInputService {
 
   static bool _looksLikeMatch(String heard, String target) {
     String normalize(String s) =>
-        s.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
+        s.toLowerCase().replaceAll(RegExp(r'[^a-zа-яёөү]'), '');
     final normalizedTarget = normalize(target);
     return normalizedTarget.isNotEmpty &&
         normalize(heard).contains(normalizedTarget);
